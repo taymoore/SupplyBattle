@@ -127,49 +127,10 @@ void Map::generateRoads() {
 		if(path.empty()) {
 			continue;
 		}
-		for(std::vector<Tile*>::iterator pathIter = path.begin(); pathIter != path.end(); ++pathIter) {
-			std::vector<Tile*>::iterator nextTile = pathIter;
-			if(++nextTile == path.end()) {
-				break;
-			}
-			createRoad(**pathIter, **nextTile);
-		}
-		if(debugView.draw()) {
-			return;
+		for (Tile* pathIter : path) {
+			createRoad(*pathIter);
 		}
 	}
-	
-	//// Generate Roads
-	//for(std::vector<std::reference_wrapper<Tile>>::iterator townStartIter = townList.begin(); townStartIter != townList.end(); ++townStartIter) {
-	//	for(std::vector<std::reference_wrapper<Tile>>::iterator townDestIter = townList.begin(); townDestIter != townList.end(); ++townDestIter) {
-	//		if(townStartIter->get() == townDestIter->get()) {
-	//			continue;
-	//		}
-	//		// Draw start & dest tiles
-	//		debugView.addCircle(townStartIter->get(), sf::Color(sf::Color::Green));
-	//		debugView.addText(townStartIter->get(), "Start");
-	//		debugView.addCircle(townDestIter->get(), sf::Color(sf::Color::Red));
-	//		debugView.addText(townDestIter->get(), "End");
-	//		if(debugView.draw()) {
-	//			return;
-	//		}
-	//		// Calculate Path
-	//		std::vector<Tile*> path = getPath(townStartIter->get(), townDestIter->get());
-	//		debugView.clear();
-	//		if(path.empty()) {
-	//			continue;
-	//		}
-	//		for(std::vector<Tile*>::iterator pathIter = path.begin(); pathIter != path.end(); ++pathIter) {
-	//			std::vector<Tile*>::iterator nextTile = pathIter;
-	//			if(++nextTile == path.end()) {
-	//				break;
-	//			}
-	//			createRoad(**pathIter, **nextTile);
-	//		}
-	//	}
-	//}
-	//createRoad(tileList.at(0), tileList.at(1));
-
 }
 
 Map::~Map() {
@@ -177,33 +138,33 @@ Map::~Map() {
 
 void Map::draw(sf::RenderWindow& renderWindow) {
     renderWindow.setView(view);
+	// Draw Terrain
 	for(unsigned int y = 0; y < mapSize.y; ++y) {
+		// Draw top-row
 		for(unsigned int x = 1; x < mapSize.x; x += 2) {
-			tileList.at(x + y * mapSize.x).draw(renderWindow);
+			tileList.at(x + y * mapSize.x).drawTerrain(renderWindow);
 		}
+		// Draw second-row
 		for(unsigned int x = 0; x < mapSize.x; x += 2) {
-			tileList.at(x + y * mapSize.x).draw(renderWindow);
+			tileList.at(x + y * mapSize.x).drawTerrain(renderWindow);
 		}
 	}
-	for(std::forward_list<Road>::iterator roadIter = roadList.begin(); roadIter != roadList.end(); ++roadIter) {
-		roadIter->draw(renderWindow);
+	// Draw Roads
+	for(unsigned int y = 0; y < mapSize.y; ++y) {
+		// Draw top-row
+		for(unsigned int x = 1; x < mapSize.x; x += 2) {
+			tileList.at(x + y * mapSize.x).drawRoad(renderWindow);
+		}
+		// Draw second-row
+		for(unsigned int x = 0; x < mapSize.x; x += 2) {
+			tileList.at(x + y * mapSize.x).drawRoad(renderWindow);
+		}
 	}
-	/*
-	std::for_each(tileList.begin(), tileList.end(), [&renderWindow, &assets](Tile& tile) {
-		tile.draw(renderWindow);
-	});
-	*/
 }
 
 const sf::Vector2u & Map::getMapSize() const {
 	return mapSize;
 }
-
-/*
-Tile & Map::getTile(const uint32_t & x, const uint32_t & y, const uint32_t & z) {
-	return tileList.at(x * getMapSize() * getMapSize() + y * getMapSize() + z);
-}
-*/
 
 bool Map::handleEvent(sf::Event sfEvent, sf::RenderWindow& renderWindow) {
     bool eventHandled = false;
@@ -352,7 +313,7 @@ std::vector<Tile*> Map::getPath(Tile & start, Tile & finish) {
 			back(back),
 			tile(tile) {
 			if(back != nullptr) {
-				gCost = back->gCost + tile.getMovementCost(back->tile);
+				gCost = back->gCost + tile.getMovementCost();
 				back->forward.push_back(this);
 			} else {
 				gCost = 0;
@@ -503,10 +464,8 @@ std::vector<Tile*> Map::getPath(Tile & start, Tile & finish) {
 	}
 }
 
-void Map::createRoad(Tile & tile1, Tile & tile2) {
-	roadList.emplace_front(tile1, tile2);
-	tile1.assignRoad(roadList.front());
-	tile2.assignRoad(roadList.front());
+void Map::createRoad(Tile & tile) {
+	tile.createRoad();
 }
 
 Tile& Map::getTile(const int & x, const int & y, const int & z) {

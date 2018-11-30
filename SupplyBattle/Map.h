@@ -14,7 +14,6 @@
 #include <algorithm>
 #include "Assets.h"
 #include "Tile.h"
-#include "Road.h"
 #include "FastNoise.h"
 #include "DebugView.h"
 
@@ -42,7 +41,7 @@ public:
 	Tile* getTile(const Tile & tile, const Map::Direction & direction);
 	std::vector<Tile*> getPath(Tile& start, Tile& finish);
 
-	void createRoad(Tile& tile1, Tile& tile2);
+	void createRoad(Tile& tile);
 	void generateRoads();
 
 private:
@@ -55,9 +54,6 @@ private:
 
 	// Towns
 	std::vector<std::reference_wrapper<Tile>> townList;
-
-	// Roads
-	std::forward_list<Road> roadList;
 
 	// Map
 	sf::Vector2<unsigned int> mapSize;

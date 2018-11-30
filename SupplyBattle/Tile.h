@@ -1,12 +1,13 @@
 #pragma once
 #include <exception>
 #include <algorithm>
+#include <vector>
+#include <array>
 #include <cmath>
 #include <iostream>
 #include <SFML/Graphics.hpp>
 #include "Terrain.h"
 #include "Assets.h"
-#include "Road.h"
 
 class Tile {
 public:
@@ -29,7 +30,8 @@ public:
 	const sf::Vector3i& getPos3() const;
 
 	void setString(const sf::String& string);
-	void draw(sf::RenderWindow& renderWindow);
+	void drawTerrain(sf::RenderWindow& renderWindow);
+	void drawRoad(sf::RenderWindow& renderWindow);
 	sf::CircleShape drawCircle(sf::RenderWindow & renderWindow, const sf::Color & color, const float & radius = 100) const;
 
 	void setAdjacentTiles(std::array<Tile*, 6>& adjacentTiles);
@@ -38,9 +40,9 @@ public:
 	const Terrain& getTerrain() const;
 	Terrain& getTerrain();
 	const unsigned int& getMovementCost() const;
-	const unsigned int getMovementCost(const Tile & tile) const;
 
-	void assignRoad(Road& road);
+	void createRoad();
+	bool hasRoad() const;
 
 	const sf::Vector2f getPixCentre() const;
 	const sf::Vector2f getPixPos() const;
@@ -53,7 +55,11 @@ private:
 
 	std::array<Tile*, 6> adjacentTiles;
 	Terrain terrain;
-	std::vector<std::reference_wrapper<Road>> roadList;
+
+	bool road;
+	void updateRoadGraphic();
+	std::vector<std::array<sf::Vertex,2>> roadGraphic;
+
 
 	sf::Text text;
 };

@@ -4,7 +4,8 @@
 extern Assets assets;
 extern Map* map_;
 
-Tile::Tile() {
+Tile::Tile() :
+	road(false) {
 }
 
 //Tile::Tile(const int& x, const int& y, const int& z) :
@@ -20,6 +21,7 @@ Tile::Tile(const sf::Vector3i& pos, const Terrain::TerrainType& terrainType) :
 	pos3(pos),
 	pixPos(static_cast<float>(pos2.x * 240), static_cast<float>(pos2.x % 2 ? pos2.y * 280 : pos2.y * 280 + 140)),
 	terrain(pixPos, terrainType),
+	road(false),
 	text("", assets.getFont(), 50) {
 	text.setPosition(pixPos + sf::Vector2f(120.0f, 240.0f));
 }
@@ -40,18 +42,15 @@ bool Tile::operator<(const Tile & other) const {
 	}
 }
 
-//Tile& Tile::operator=(const Tile& tile) {
-//	pos2 = tile.getPos2();
-//	pos3 = tile.getPos3();
-//	pixPos(static_cast<float>(pos2.x * 240), static_cast<float>(pos2.x % 2 ? pos2.y * 280 : pos2.y * 280 + 140)),
-//	terrain(pixPos, terrainType),
-//	text("", assets.getFont(), 50) {
-//	text.setPosition(pixPos + sf::Vector2f(120.0f, 240.0f));
-//}
-
-void Tile::draw(sf::RenderWindow& renderWindow) {
+void Tile::drawTerrain(sf::RenderWindow& renderWindow) {
 	terrain.draw(renderWindow);
 	renderWindow.draw(text);
+}
+
+void Tile::drawRoad(sf::RenderWindow & renderWindow) {
+	for(std::array<sf::Vertex, 2>& line : roadGraphic) {
+		renderWindow.draw(line.data(), 2, sf::Lines);
+	}
 }
 
 sf::CircleShape Tile::drawCircle(sf::RenderWindow & renderWindow, const sf::Color & color, const float& radius) const {
@@ -110,20 +109,20 @@ Terrain & Tile::getTerrain() {
 }
 
 const unsigned int& Tile::getMovementCost() const {
-	return getTerrain().getMovementCost();
-}
-
-const unsigned int Tile::getMovementCost(const Tile& tile) const {
-	for(auto& road : roadList) {
-		if(road.get().contains(tile)) {
-			return 1;
-		}
+	if(hasRoad()) {
+		return 1;
+	} else {
+		return getTerrain().getMovementCost();
 	}
-	return getMovementCost();
 }
 
-void Tile::assignRoad(Road& road) {
-	roadList.emplace_back(std::reference_wrapper<Road>(road));
+void Tile::createRoad() {
+	road = true;
+	updateRoadGraphic();
+}
+
+bool Tile::hasRoad() const {
+	return road;
 }
 
 const sf::Vector2f Tile::getPixCentre() const {
@@ -132,4 +131,18 @@ const sf::Vector2f Tile::getPixCentre() const {
 
 const sf::Vector2f Tile::getPixPos() const {
 	return pixPos;
+}
+
+void Tile::updateRoadGraphic() {
+	roadGraphic.clear();
+	if(hasRoad()) {
+		for(Tile* adjacentTile : adjacentTiles) {
+			if(adjacentTile != nullptr && adjacentTile->hasRoad()) {
+				roadGraphic.push_back({adjacentTile->getPixCentre(), getPixCentre()});
+			}
+		}
+		if(roadGraphic.empty()) {
+			roadGraphic.push_back({getPixCentre() - sf::Vector2f(-10, -10), getPixCentre() + sf::Vector2f(10, 10)});
+		}
+	}
 }

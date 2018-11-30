@@ -12,10 +12,8 @@
 class Tile {
 public:
 	Tile();
-//    Tile(const int& x, const int& y, const int& z);
 	Tile(const int & a, const int & b, const Terrain::TerrainType & terrainType);
 	Tile(const sf::Vector3i& pos, const Terrain::TerrainType & terrainType);
-	//Tile& operator=(const Tile&);
 	bool operator==(const Tile& other) const;
 	bool operator<(const Tile& other) const;
 
@@ -39,7 +37,7 @@ public:
 
 	const Terrain& getTerrain() const;
 	Terrain& getTerrain();
-	const unsigned int& getMovementCost() const;
+	const unsigned int getMovementCost() const;
 
 	void createRoad();
 	bool hasRoad() const;

@@ -138,6 +138,9 @@ Map::~Map() {
 
 void Map::draw(sf::RenderWindow& renderWindow) {
     renderWindow.setView(view);
+		// Select tile
+		debugView.clear();
+		debugView.addCircle(getTile(renderWindow.mapPixelToCoords(sf::Mouse::getPosition(renderWindow))), sf::Color::Green);
 	// Draw Terrain
 	for(unsigned int y = 0; y < mapSize.y; ++y) {
 		// Draw top-row
@@ -203,9 +206,6 @@ bool Map::handleEvent(sf::Event sfEvent, sf::RenderWindow& renderWindow) {
             view.move((oldMousePoint.x - sfEvent.mouseMove.x) * viewZoom / 4, (oldMousePoint.y - sfEvent.mouseMove.y) * viewZoom / 2);
             oldMousePoint = sf::Mouse::getPosition(renderWindow);
 
-            std::wostringstream os_;
-            os_ << "\n" << oldMousePoint.x - sfEvent.mouseMove.x << ", " << oldMousePoint.y - sfEvent.mouseMove.y;
-            OutputDebugString(os_.str().c_str());
         }
     }
     // Mouse wheel moved
@@ -302,6 +302,71 @@ Tile* Map::getTile(const Tile& tile, const Map::Direction & direction) {
 		return getTilePtr(tile.getPos3().x, tile.getPos3().y - 1, tile.getPos3().z + 1);
 	default:
 		return nullptr;
+	}
+}
+
+Tile& Map::getTile(const sf::Vector2f& pos) {
+	/* A tile is two triangles and one square:
+	      ____
+		/|	  |\
+		\|____|/
+	*/
+
+	// Determine Column
+	/* A column is the right triangle(s) and square
+		 |column|
+	      ____  
+		 |	  |\|
+		 |____|/|
+	*/
+	unsigned int column = static_cast<unsigned int>(min(max((pos.x - 80) / 240, 0), mapSize.x - 1));
+	// Determine row
+	/* The row height depends on the column
+                 ____
+	      ____ /      \ ____	
+		/ 	   \ 3__2 /      \
+		\ 2__2 /      \ 4__2 /
+		       \ ____ /
+	*/
+	unsigned int row = static_cast<unsigned int>(min(max((pos.y - (column % 2 ? 155 : 295)) / 280, 0), mapSize.y - 1));
+	// If in triangle region
+	/*      region
+		      | |
+	      ____  
+		 |	  |\|
+		 |____|/|
+	*/
+	if(static_cast<unsigned int>(pos.x - 80) % 240 > 160) {
+		auto crossProduct = [](sf::Vector2f& a, sf::Vector2f& b)->bool {return a.x * b.y - a.y * b.x > 0; };
+		/* Draw vectors of right triangle
+			\ up vector
+			/ down vector
+		*/
+		bool isRightofUpVector = crossProduct(sf::Vector2f(-80.f, -140.f), pos - getTile(column, row).getPixPos() - sf::Vector2f(320, 295));
+		bool isRightofDownVector = crossProduct(sf::Vector2f(-80.f, 140.f), pos - getTile(column, row).getPixPos() - sf::Vector2f(320, 295));
+		if(!isRightofUpVector && isRightofDownVector) {
+			// Middle trangle
+			return getTile(column, row);
+		} else if(isRightofUpVector) {
+			// Top triangle
+			Tile* tile = getTile(getTile(column, row), Map::Direction::UP_RIGHT);
+			if(tile != nullptr) {
+				return *tile;
+			} else {
+				return getTile(column, row);
+			}
+		} else {
+			// Bottom triangle
+			Tile* tile = getTile(getTile(column, row), Map::Direction::DOWN_RIGHT);
+			if(tile != nullptr) {
+				return *tile;
+			} else {
+				return getTile(column, row);
+			}
+		}
+	// Else not in triangle region
+	} else {
+		return getTile(column, row);
 	}
 }
 
@@ -470,7 +535,11 @@ void Map::createRoad(Tile & tile) {
 
 Tile& Map::getTile(const int & x, const int & y, const int & z) {
 	sf::Vector2i pos(Tile::getPos(x, y, z));
-	return tileList.at(pos.y * mapSize.x + pos.x);
+	return getTile(pos.x, pos.y);
+}
+
+Tile & Map::getTile(const int & a, const int & b) {
+	return tileList.at(b * mapSize.x + a);
 }
 
 Tile* Map::getTilePtr(const int & x, const int & y, const int & z) {

@@ -39,6 +39,7 @@ public:
 	};
 
 	Tile* getTile(const Tile & tile, const Map::Direction & direction);
+	Tile& getTile(const sf::Vector2f& pos);
 	std::vector<Tile*> getPath(Tile& start, Tile& finish);
 
 	void createRoad(Tile& tile);
@@ -48,6 +49,7 @@ private:
 	// Tiles
 	std::vector<Tile> tileList;
 	Tile& getTile(const int& x, const int& y, const int& z);
+	Tile& getTile(const int& a, const int& b);
 	Tile* getTilePtr(const int& x, const int& y, const int& z);
 	const Tile& getTile(const int & x, const int & y, const int & z) const;
 	std::array<Tile*, 6> getAdjacentTiles(const sf::Vector3i& pos);

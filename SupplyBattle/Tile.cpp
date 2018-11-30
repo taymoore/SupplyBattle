@@ -108,7 +108,7 @@ Terrain & Tile::getTerrain() {
 	return terrain;
 }
 
-const unsigned int& Tile::getMovementCost() const {
+const unsigned int Tile::getMovementCost() const {
 	if(hasRoad()) {
 		return 1;
 	} else {

@@ -16,7 +16,8 @@ public:
 	std::size_t eraseText(const Tile& tile);
 	void addLine(const Tile& start, const Tile& finish);
 	std::size_t eraseLine(const Tile & start, const Tile & finish);
-	bool draw();
+	void draw();
+	bool render();
 	void clear();
 
 private:

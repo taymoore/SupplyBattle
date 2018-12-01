@@ -117,13 +117,13 @@ void Map::generateRoads() {
 	}
 	// Generate Roads
 	for(auto& townPair : townDistList) {
-		debugView.addCircle(townPair.second.first.get(), sf::Color(sf::Color::Green));
-		debugView.addCircle(townPair.second.second.get(), sf::Color(sf::Color::Red));
-		if(debugView.draw()) {
-			return;
-		}
+		//debugView.addCircle(townPair.second.first.get(), sf::Color(sf::Color::Green));
+		//debugView.addCircle(townPair.second.second.get(), sf::Color(sf::Color::Red));
+		//if(debugView.render()) {
+		//	return;
+		//}
 		std::vector<Tile*> path = getPath(townPair.second.first.get(), townPair.second.second.get());
-		debugView.clear();
+		//debugView.clear();
 		if(path.empty()) {
 			continue;
 		}
@@ -139,8 +139,9 @@ Map::~Map() {
 void Map::draw(sf::RenderWindow& renderWindow) {
     renderWindow.setView(view);
 		//// Select tile
-		//debugView.clear();
-		//debugView.addCircle(getTile(renderWindow.mapPixelToCoords(sf::Mouse::getPosition(renderWindow))), sf::Color::Green);
+		debugView.clear();
+		debugView.addCircle(getTile(renderWindow.mapPixelToCoords(sf::Mouse::getPosition(renderWindow))), sf::Color::Green);
+		debugView.addText(getTile(renderWindow.mapPixelToCoords(sf::Mouse::getPosition(renderWindow))), "hi");
 	// Draw Terrain
 	for(unsigned int y = 0; y < mapSize.y; ++y) {
 		// Draw top-row
@@ -169,12 +170,20 @@ const sf::Vector2u & Map::getMapSize() const {
 	return mapSize;
 }
 
-bool Map::handleEvent(sf::Event sfEvent, sf::RenderWindow& renderWindow) {
+bool Map::handleEvent(sf::Event event) {
+	// Pass to child
+	if(Widget::handleEvent(event)) {
+		return true;
+	}
+
     bool eventHandled = false;
     // Mouse button pressed
-    if(sfEvent.type == sf::Event::MouseButtonPressed) {
+    if(event.type == sf::Event::MouseButtonPressed) {
         // If left mouse button pressed
-        if(sfEvent.mouseButton.button == sf::Mouse::Button::Left) {
+        if(event.mouseButton.button == sf::Mouse::Button::Left) {
+			if(!hasFocus()) {
+				takeFocus();
+			}
             // If clicked on ship
             //for(unsigned int factionIndex = 0; factionIndex < arena.getArenaFactionList()->size(); factionIndex++) {
             //    ArenaFaction* arenaFaction = arena.getArenaFactionList()->at(factionIndex);
@@ -187,35 +196,35 @@ bool Map::handleEvent(sf::Event sfEvent, sf::RenderWindow& renderWindow) {
             //}
         }
         // Middle mouse button pressed
-        else if(sfEvent.mouseButton.button == sf::Mouse::Button::Middle) {
+        else if(event.mouseButton.button == sf::Mouse::Button::Middle) {
             isPanning = true;
             oldMousePoint = sf::Mouse::getPosition();
         }
     }
     // Mouse button released
-    else if(sfEvent.type == sf::Event::MouseButtonReleased) {
+    else if(event.type == sf::Event::MouseButtonReleased) {
         // Middle mouse button released
-        if(sfEvent.mouseButton.button == sf::Mouse::Button::Middle) {
+        if(event.mouseButton.button == sf::Mouse::Button::Middle) {
             isPanning = false;
         }
     }
     // Move mouse
-    else if(sfEvent.type == sf::Event::MouseMoved) {
+    else if(event.type == sf::Event::MouseMoved) {
         // Pan camera
         if(isPanning == true) {
-            view.move((oldMousePoint.x - sfEvent.mouseMove.x) * viewZoom / 4, (oldMousePoint.y - sfEvent.mouseMove.y) * viewZoom / 2);
-            oldMousePoint = sf::Mouse::getPosition(renderWindow);
+            view.move((oldMousePoint.x - event.mouseMove.x) * viewZoom / 4, (oldMousePoint.y - event.mouseMove.y) * viewZoom / 2);
+            oldMousePoint = sf::Mouse::getPosition(*renderWindow_);
 
         }
     }
     // Mouse wheel moved
-    else if(sfEvent.type == sf::Event::MouseWheelScrolled) {
+    else if(event.type == sf::Event::MouseWheelScrolled) {
         // Zoom)
-        if(sfEvent.mouseWheelScroll.delta > 0) {
-            zoomViewAt({sfEvent.mouseWheelScroll.x, sfEvent.mouseWheelScroll.y}, renderWindow, (1.f / 1.2f));
+        if(event.mouseWheelScroll.delta > 0) {
+            zoomViewAt({event.mouseWheelScroll.x, event.mouseWheelScroll.y}, *renderWindow_, (1.f / 1.2f));
             viewZoom *= (1.f / 1.2f);
-        } else if(sfEvent.mouseWheelScroll.delta < 0) {
-            zoomViewAt({sfEvent.mouseWheelScroll.x, sfEvent.mouseWheelScroll.y}, renderWindow, 1.2f);
+        } else if(event.mouseWheelScroll.delta < 0) {
+            zoomViewAt({event.mouseWheelScroll.x, event.mouseWheelScroll.y}, *renderWindow_, 1.2f);
             viewZoom *= 1.2f;
         }
 		std::wostringstream os_;
@@ -223,23 +232,23 @@ bool Map::handleEvent(sf::Event sfEvent, sf::RenderWindow& renderWindow) {
 		OutputDebugString(os_.str().c_str());
     }
     // Key pressed
-    else if(sfEvent.type == sf::Event::KeyPressed) {
-        if(sfEvent.key.code == sf::Keyboard::W) {
+    else if(event.type == sf::Event::KeyPressed) {
+        if(event.key.code == sf::Keyboard::W) {
             panVerticalDirection = PanVerticalDirection::Up;
             panDelayCount = initPanDelay;
             view.move(sf::Vector2f(0, -panStep * viewZoom));
             eventHandled = true;
-        } else if(sfEvent.key.code == sf::Keyboard::S) {
+        } else if(event.key.code == sf::Keyboard::S) {
             panVerticalDirection = PanVerticalDirection::Down;
             panDelayCount = initPanDelay;
             view.move(sf::Vector2f(0, panStep * viewZoom));
             eventHandled = true;
-        } else if(sfEvent.key.code == sf::Keyboard::A) {
+        } else if(event.key.code == sf::Keyboard::A) {
             panHorizontalDirection = PanHorizontalDirection::Left;
             panDelayCount = initPanDelay;
             view.move(sf::Vector2f(-panStep * viewZoom, 0));
             eventHandled = true;
-        } else if(sfEvent.key.code == sf::Keyboard::D) {
+        } else if(event.key.code == sf::Keyboard::D) {
             panHorizontalDirection = PanHorizontalDirection::Right;
             view.move(sf::Vector2f(panStep * viewZoom, 0));
             panDelayCount = initPanDelay;
@@ -247,20 +256,20 @@ bool Map::handleEvent(sf::Event sfEvent, sf::RenderWindow& renderWindow) {
         }
     }
     // Key released
-    else if(sfEvent.type == sf::Event::KeyReleased) {
-        if(sfEvent.key.code == sf::Keyboard::W) {
+    else if(event.type == sf::Event::KeyReleased) {
+        if(event.key.code == sf::Keyboard::W) {
             panVerticalDirection = PanVerticalDirection::VerticalNone;
             panDelayCount = initPanDelay;
             eventHandled = true;
-        } else if(sfEvent.key.code == sf::Keyboard::S) {
+        } else if(event.key.code == sf::Keyboard::S) {
             panVerticalDirection = PanVerticalDirection::VerticalNone;
             panDelayCount = initPanDelay;
             eventHandled = true;
-        } else if(sfEvent.key.code == sf::Keyboard::A) {
+        } else if(event.key.code == sf::Keyboard::A) {
             panHorizontalDirection = PanHorizontalDirection::HorizontalNone;
             panDelayCount = initPanDelay;
             eventHandled = true;
-        } else if(sfEvent.key.code == sf::Keyboard::D) {
+        } else if(event.key.code == sf::Keyboard::D) {
             panHorizontalDirection = PanHorizontalDirection::HorizontalNone;
             panDelayCount = initPanDelay;
             eventHandled = true;
@@ -400,7 +409,7 @@ std::vector<Tile*> Map::getPath(Tile & start, Tile & finish) {
 			//if(pathFound) {
 			//	debugView.eraseCircle(tile);
 			//	debugView.eraseText(tile);
-			//	debugView.draw();
+			//	debugView.render();
 			//}
 		}
 		bool operator==(const Node& other) const {
@@ -439,8 +448,8 @@ std::vector<Tile*> Map::getPath(Tile & start, Tile & finish) {
 			break;
 		}
 		// Draw active node
-		debugView.addCircle(exploredPathList.front().tile, sf::Color(0x00, 0xFF, 0x00), 80.0f);
-		//if(debugView.draw()) {
+		//debugView.addCircle(exploredPathList.front().tile, sf::Color(0x00, 0xFF, 0x00), 80.0f);
+		//if(debugView.render()) {
 		//	return std::vector<Tile*>();
 		//}
 		// Find adjacent tiles to least-cost node
@@ -456,23 +465,23 @@ std::vector<Tile*> Map::getPath(Tile & start, Tile & finish) {
 			// Draw adjacent node
 			//debugView.addCircle(adjacentNode.tile, sf::Color(sf::Color::Magenta), 80.0f);
 			//debugView.addText(adjacentNode.tile, std::to_string(adjacentNode.gCost) + std::string("\n") + std::to_string(adjacentNode.fCost));
-			//if(debugView.draw()) {
+			//if(debugView.render()) {
 			//	return std::vector<Tile*>();
 			//}
 			// Find matching node in explored list
 			std::list<Node>::iterator exploredNode = std::find_if(exploredPathList.begin(), exploredPathList.end(), [adjacentNode](const Node& exploredNodeIter)->bool {return adjacentNode.tile.getPos2() == exploredNodeIter.tile.getPos2(); });
 			// If this node is already in the explored list
 			if(exploredNode != exploredPathList.end()) {
-				debugView.addCircle(adjacentNode.tile, sf::Color(0xFF, 0x7F, 0x7F), 80.0f);
+				//debugView.addCircle(adjacentNode.tile, sf::Color(0xFF, 0x7F, 0x7F), 80.0f);
 				// Replace node if this node is cheaper
 				if(adjacentNode.fCost < exploredNode->fCost) {
-					debugView.eraseLine(exploredNode->tile, exploredNode->back->tile);
-					debugView.addLine(adjacentNode.tile, adjacentNode.back->tile);
-					debugView.addCircle(adjacentNode.tile, sf::Color(0x7F, 0xFF, 0xFF), 80.0f);
-					debugView.addText(adjacentNode.tile, adjacentNode.getBackTile());
+					//debugView.eraseLine(exploredNode->tile, exploredNode->back->tile);
+					//debugView.addLine(adjacentNode.tile, adjacentNode.back->tile);
+					//debugView.addCircle(adjacentNode.tile, sf::Color(0x7F, 0xFF, 0xFF), 80.0f);
+					//debugView.addText(adjacentNode.tile, adjacentNode.getBackTile());
 					potentialPathList.push_front(adjacentNode);
 					for(std::vector<Node*>::iterator forwardIter = exploredNode->forward.begin(); forwardIter != exploredNode->forward.end(); ++forwardIter) {
-						debugView.eraseLine((*forwardIter)->tile, exploredNode->tile);
+						//debugView.eraseLine((*forwardIter)->tile, exploredNode->tile);
 						(*forwardIter)->back = nullptr;
 					}
 					exploredPathList.erase(exploredNode);
@@ -484,19 +493,19 @@ std::vector<Tile*> Map::getPath(Tile & start, Tile & finish) {
 				// If the adjacent node is not in the potential path list
 				if(potentialNode == potentialPathList.end()) {
 					potentialPathList.push_front(adjacentNode);
-					debugView.addLine(adjacentNode.tile, exploredPathList.front().tile);
-					debugView.addCircle(adjacentNode.tile, sf::Color(0x7F, 0x7F, 0xFF), 80.0f);
-					debugView.addText(adjacentNode.tile, adjacentNode.getBackTile());
+					//debugView.addLine(adjacentNode.tile, exploredPathList.front().tile);
+					//debugView.addCircle(adjacentNode.tile, sf::Color(0x7F, 0x7F, 0xFF), 80.0f);
+					//debugView.addText(adjacentNode.tile, adjacentNode.getBackTile());
 				} else {
 					// Replace node if this node is cheaper
 					if(adjacentNode.fCost < potentialNode->fCost) {
-						debugView.eraseLine(potentialNode->tile, potentialNode->back->tile);
-						debugView.addLine(adjacentNode.tile, exploredPathList.front().tile);
-						debugView.addCircle(adjacentNode.tile, sf::Color(0x00, 0x00, 0x00), 80.0f);
-						debugView.addText(adjacentNode.tile, adjacentNode.getBackTile());
+						//debugView.eraseLine(potentialNode->tile, potentialNode->back->tile);
+						//debugView.addLine(adjacentNode.tile, exploredPathList.front().tile);
+						//debugView.addCircle(adjacentNode.tile, sf::Color(0x00, 0x00, 0x00), 80.0f);
+						//debugView.addText(adjacentNode.tile, adjacentNode.getBackTile());
 						potentialPathList.push_front(adjacentNode);
 						for(std::vector<Node*>::iterator forwardIter = potentialNode->forward.begin(); forwardIter != potentialNode->forward.end(); ++forwardIter) {
-							debugView.eraseLine((*forwardIter)->tile, potentialNode->tile);
+							//debugView.eraseLine((*forwardIter)->tile, potentialNode->tile);
 							(*forwardIter)->back = nullptr;
 						}
 						potentialPathList.erase(potentialNode);
@@ -504,8 +513,8 @@ std::vector<Tile*> Map::getPath(Tile & start, Tile & finish) {
 				}
 			}
 		}
-		debugView.addCircle(exploredPathList.front().tile, sf::Color(0xFF, 0x7F, 0x7F), 80.0f);
-		//if(debugView.draw()) {
+		//debugView.addCircle(exploredPathList.front().tile, sf::Color(0xFF, 0x7F, 0x7F), 80.0f);
+		//if(debugView.render()) {
 		//	return std::vector<Tile*>();
 		//}
 	}
@@ -516,13 +525,13 @@ std::vector<Tile*> Map::getPath(Tile & start, Tile & finish) {
 		Node* node = &exploredPathList.front();
 		while(node != nullptr) {
 			path.push_back(&node->tile);
-			debugView.addCircle(node->tile, sf::Color::Green, 80.0f);
+			//debugView.addCircle(node->tile, sf::Color::Green, 80.0f);
 			node = node->back;
 		}
 		path.push_back(&start);
-		if(debugView.draw()) {
-			return std::vector<Tile*>();
-		}
+		//if(debugView.render()) {
+		//	return std::vector<Tile*>();
+		//}
 		return path;
 	} else {
 		return std::vector<Tile*>();

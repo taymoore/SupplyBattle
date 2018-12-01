@@ -6,6 +6,10 @@
 
 Assets assets;
 sf::RenderWindow* renderWindow_;
+std::forward_list<Hud> hudList;
+Widget* focus_;
+
+extern DebugView debugView;
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR    lpCmdLine, _In_ int       nCmdShow) {
     sf::VideoMode currentVideoMode = sf::VideoMode::getDesktopMode();
@@ -15,12 +19,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	sf::RenderWindow renderWindow(currentVideoMode, "Supply Battle");// , sf::Style::Default, settings);
 	renderWindow_ = &renderWindow;
 
-	Hud hud(sf::Vector2f(50.f, 50.f) ,sf::Vector2f(500.f, 100.f));
-
-	Map map(renderWindow, 50, 50);
+	// Create map
+	Map map(renderWindow, 5, 5);
+	focus_ = &map;
 	map.generateRoads();
 
+	// Create Hud
+	hudList.emplace_front("Title", sf::Vector2f(500,50), sf::Vector2f(200, 500), &map);
+
 	while(renderWindow.isOpen()) {
+		// Read
 		sf::Event event;
         while(renderWindow.pollEvent(event)) {
             if(event.type == sf::Event::Closed) {
@@ -28,12 +36,37 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 			} else if(event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape) {
                 renderWindow.close();
             }
-            // Pass event to arena
-            map.handleEvent(event, renderWindow);
+			Widget* focus = focus_;
+			while(focus != nullptr ? !focus->handleEvent(event) : false) {
+				focus = focus->getParent();
+			}
+			//if(focus_ != nullptr ? focus_->handleEvent(event) : false) {
+			//	continue;
+			//}
+			//if(mouseFocus_ != nullptr ? mouseFocus_->handleEvent(event) : false) {
+			//	continue;
+			//}
+			//if(selectedFocus_ != nullptr ? selectedFocus_->handleEvent(event) : false) {
+			//	continue;
+			//}
+			//bool handled = false;
+			//for(std::forward_list<Hud>::iterator hud = hudList.begin(); hud != hudList.end(); ++hud) {
+			//	if(hud->handleEvent(event)) {
+			//		handled = true;
+			//	}
+			//}
+			//if(!handled) {
+			//	handled = map.handleEvent(event, renderWindow);
+			//}
         }
+
+		// Draw
 		renderWindow.clear();
         map.draw(renderWindow);
-		hud.draw();
+		debugView.draw();
+		for(Hud& hud : hudList) {
+			hud.draw();
+		}
 		renderWindow.display();
     }
 

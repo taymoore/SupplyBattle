@@ -16,8 +16,10 @@
 #include "Tile.h"
 #include "FastNoise.h"
 #include "DebugView.h"
+#include "Widget.h"
 
-class Map {
+class Map :
+	public Widget {
 public:
 	Map(sf::RenderWindow& renderWindow, const uint32_t& xSize, const uint32_t& ySize);
 	~Map();
@@ -27,7 +29,7 @@ public:
 	Tile& getTile(const uint32_t& x, const uint32_t& y, const uint32_t& z);
 	*/
     // Returns bool if event is handled
-    bool handleEvent(sf::Event sfEvent, sf::RenderWindow& renderWindow);
+    bool handleEvent(sf::Event event) override;
 
 	enum Direction {
 		UP_LEFT,
@@ -39,7 +41,7 @@ public:
 	};
 
 	Tile* getTile(const Tile & tile, const Map::Direction & direction);
-	Tile& getTile(const sf::Vector2f& pos);
+	Tile& getTile(const sf::Vector2f& pos);	// get tile from mouse position
 	std::vector<Tile*> getPath(Tile& start, Tile& finish);
 
 	void createRoad(Tile& tile);

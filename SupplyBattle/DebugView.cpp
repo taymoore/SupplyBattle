@@ -3,7 +3,7 @@
 
 extern sf::RenderWindow* renderWindow_;
 extern Map* map_;
-extern Hud* hud_;
+extern std::vector<Hud*> hud_;
 extern Assets assets;
 
 DebugView::DebugView() {
@@ -62,23 +62,29 @@ std::size_t DebugView::eraseLine(const Tile& start, const Tile& finish) {
 	return lineList.erase(std::make_pair(start, finish));
 }
 
-bool DebugView::draw() {
+void DebugView::draw() {
+	for(auto objectIter : lineList) {
+		renderWindow_->draw(objectIter.second);
+	}
+	for(auto objectIter : circleList) {
+		renderWindow_->draw(objectIter.second);
+	}
+	for(auto objectIter : textList) {
+		renderWindow_->draw(objectIter.second);
+	}
+}
+
+bool DebugView::render() {
 	bool loop = true;
 	bool ret = false;
 	while(loop) {
 		sf::Event event;
 		renderWindow_->clear();
 		map_->draw(*renderWindow_);
-		hud_->draw();
-		for(auto objectIter : lineList) {
-			renderWindow_->draw(objectIter.second);
+		for(Hud* hud : hud_) {
+			hud->draw();
 		}
-		for(auto objectIter : circleList) {
-			renderWindow_->draw(objectIter.second);
-		}
-		for(auto objectIter : textList) {
-			renderWindow_->draw(objectIter.second);
-		}
+		draw();
 		renderWindow_->display();
 		while(renderWindow_->pollEvent(event)) {
 			if(event.type == sf::Event::Closed) {
@@ -91,7 +97,7 @@ bool DebugView::draw() {
 				ret = false;
 				loop = false;
 			}
-			map_->handleEvent(event, *renderWindow_);
+			map_->handleEvent(event);
 		}
 	}
 	return ret;

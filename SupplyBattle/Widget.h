@@ -1,9 +1,22 @@
 #pragma once
+#include <vector>
+#include <SFML/Graphics.hpp>
+
 class Widget {
 public:
 	Widget();
+	Widget(Widget* parent);
 	~Widget();
 
-	virtual void draw() = 0;
+	Widget* getParent() const;
+	virtual bool handleEvent(sf::Event event);
+	void takeFocus();
+	bool hasFocus() const;
+	void addChild(Widget* child);
+
+protected:
+	Widget* parent;
+	std::vector<Widget*> children;
+	bool removeChild(const Widget* child);
 };
 

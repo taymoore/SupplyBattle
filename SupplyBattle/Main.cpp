@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include "Map.h"
 #include "Assets.h"
+#include "Hud.h"
 
 Assets assets;
 sf::RenderWindow* renderWindow_;
@@ -14,10 +15,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	sf::RenderWindow renderWindow(currentVideoMode, "Supply Battle");// , sf::Style::Default, settings);
 	renderWindow_ = &renderWindow;
 
+	Hud hud(sf::Vector2f(50.f, 50.f) ,sf::Vector2f(500.f, 100.f));
+
 	Map map(renderWindow, 50, 50);
 	map.generateRoads();
-
-
 
 	while(renderWindow.isOpen()) {
 		sf::Event event;
@@ -32,6 +33,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
         }
 		renderWindow.clear();
         map.draw(renderWindow);
+		hud.draw();
 		renderWindow.display();
     }
 

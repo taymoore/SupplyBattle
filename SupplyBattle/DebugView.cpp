@@ -1,7 +1,9 @@
 #include "DebugView.h"
+#include "Hud.h"
 
 extern sf::RenderWindow* renderWindow_;
 extern Map* map_;
+extern Hud* hud_;
 extern Assets assets;
 
 DebugView::DebugView() {
@@ -67,6 +69,7 @@ bool DebugView::draw() {
 		sf::Event event;
 		renderWindow_->clear();
 		map_->draw(*renderWindow_);
+		hud_->draw();
 		for(auto objectIter : lineList) {
 			renderWindow_->draw(objectIter.second);
 		}

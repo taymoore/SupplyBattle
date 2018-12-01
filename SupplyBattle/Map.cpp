@@ -138,9 +138,9 @@ Map::~Map() {
 
 void Map::draw(sf::RenderWindow& renderWindow) {
     renderWindow.setView(view);
-		// Select tile
-		debugView.clear();
-		debugView.addCircle(getTile(renderWindow.mapPixelToCoords(sf::Mouse::getPosition(renderWindow))), sf::Color::Green);
+		//// Select tile
+		//debugView.clear();
+		//debugView.addCircle(getTile(renderWindow.mapPixelToCoords(sf::Mouse::getPosition(renderWindow))), sf::Color::Green);
 	// Draw Terrain
 	for(unsigned int y = 0; y < mapSize.y; ++y) {
 		// Draw top-row

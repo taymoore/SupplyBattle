@@ -133,6 +133,14 @@ void Map::generateRoads() {
 	}
 }
 
+const sf::Vector2f& Map::getPosition() const {
+	static sf::Vector2f origin(0.f, 0.f);
+	return origin;
+}
+
+void Map::setPosition(const sf::Vector2f & position) {
+}
+
 Map::~Map() {
 }
 

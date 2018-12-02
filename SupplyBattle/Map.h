@@ -47,6 +47,9 @@ public:
 	void createRoad(Tile& tile);
 	void generateRoads();
 
+	const sf::Vector2f& getPosition() const override;
+	void setPosition(const sf::Vector2f& position) override;
+
 private:
 	// Tiles
 	std::vector<Tile> tileList;

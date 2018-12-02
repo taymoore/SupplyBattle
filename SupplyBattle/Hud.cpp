@@ -7,23 +7,27 @@ extern Widget* focus_;
 
 std::vector<Hud*> hud_;
 
+const sf::Vector2f Hud::verticalListPositionOffset(5.f, 60.f);
+
 const sf::Color Hud::backgroundFillColor(sf::Color(0xFA, 0xFA, 0xFA));
 const sf::Color Hud::backgroundOutlineColor(sf::Color(0x10, 0x10, 0x10));
 const sf::Color Hud::backgroundFillColorFocused(sf::Color(0xFA, 0xFA, 0xFA));
 const sf::Color Hud::backgroundOutlineColorFocused(sf::Color(0x10, 0xA0, 0x10));
 
-Hud::Hud(const sf::String& title, const sf::Vector2f& pos, const sf::Vector2f& size, Widget* parent) :
+Hud::Hud(const sf::String& title, const sf::Vector2f& position, const sf::Vector2f& size, Widget* parent) :
 	Widget(parent),
+	verticalList(*this),
 	background(size),
-	titlebar(title, pos, sf::Vector2f(size.x, 50.f), *this) {	// Height of titlebar
+	newMapButton("New Map", 20.f, this),
+	titlebar(title, position, sf::Vector2f(size.x, 50.f), *this) {	// Height of titlebar
 	parent->addChild(this);
-	setPosition(pos);
+	addChild(&verticalList);
+	verticalList.addChild(&newMapButton);
+	setPosition(position);
 	background.setFillColor(backgroundFillColor);
 	background.setOutlineThickness(3.f);
 	background.setOutlineColor(backgroundOutlineColor);
 	hud_.push_back(this);
-
-	buttonList.emplace_back("New Map", pos + sf::Vector2f(5.f, 60.f), 20.f, this);
 }
 
 Hud::~Hud() {
@@ -80,9 +84,7 @@ void Hud::draw() {
 	renderWindow_->setView(renderWindow_->getDefaultView());
 	titlebar.draw();
 	renderWindow_->draw(background);
-	for(auto& widget : buttonList) {
-		widget.draw();
-	}
+	verticalList.draw();
 }
 
 const sf::Vector2f& Hud::getPosition() const {
@@ -92,6 +94,7 @@ const sf::Vector2f& Hud::getPosition() const {
 void Hud::setPosition(const sf::Vector2f& position) {
 	titlebar.setPosition(position);
 	background.setPosition(position + sf::Vector2f(0.f, 40.f));
+	verticalList.setPosition(position + verticalListPositionOffset);
 }
 
 const std::string Hud::to_string(const float & val, const unsigned int & precision) {
@@ -172,4 +175,21 @@ const sf::Vector2f & Hud::Titlebar::getPosition() const {
 void Hud::Titlebar::setPosition(const sf::Vector2f & position) {
 	background.setPosition(position);
 	text.setPosition(position + sf::Vector2f(size.x * 0.01f, size.y * 0.1f));	// Spacing
+}
+
+void Hud::VerticalList::draw() {
+	for(Widget* widget : children) {
+		widget->draw();
+	}
+}
+
+const sf::Vector2f & Hud::VerticalList::getPosition() const {
+	return position;
+}
+
+void Hud::VerticalList::setPosition(const sf::Vector2f & position) {
+	this->position = position;
+	for(Widget* widget : children) {
+		widget->setPosition(position);
+	}
 }

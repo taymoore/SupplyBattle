@@ -8,11 +8,18 @@ public:
 	Widget(Widget* parent);
 	~Widget();
 
+	virtual void draw() {};
+
 	Widget* getParent() const;
+	void addChild(Widget* child);
+
 	virtual bool handleEvent(sf::Event event);
+
 	void takeFocus();
 	bool hasFocus() const;
-	void addChild(Widget* child);
+
+	virtual const sf::Vector2f& getPosition() const = 0;
+	virtual void setPosition(const sf::Vector2f& position) = 0;
 
 protected:
 	Widget* parent;

@@ -17,8 +17,9 @@ public:
     bool handleEvent(sf::Event event) override;
 	void draw();
 
-	const sf::Vector2f& getPosition() const;
-	void setPosition(const sf::Vector2f& position);
+	const sf::Vector2f& getPosition() const override;
+	void setPosition(const sf::Vector2f& position) override;
+
 
 	static const std::string to_string(const float& val, const unsigned int& precision);
 
@@ -28,8 +29,8 @@ private:
 		Titlebar(const sf::String & title, const sf::Vector2f & pos, const sf::Vector2f& size, Hud & parent);
 		bool handleEvent(sf::Event event);
 		void draw();
-		const sf::Vector2f& getPosition() const;
-		void setPosition(const sf::Vector2f& position);
+		const sf::Vector2f& getPosition() const override;
+		void setPosition(const sf::Vector2f& position) override;
 		Hud& hud;
 		sf::Text text;
 		sf::RectangleShape background;
@@ -43,9 +44,23 @@ private:
 	};
 	Titlebar titlebar;
 
-	sf::RectangleShape background;
+	struct VerticalList :
+		public Widget {
+		VerticalList(Widget& parent) :
+			Widget(parent) {
+		}
+		void draw() override;
+		const sf::Vector2f& getPosition() const override;
+		void setPosition(const sf::Vector2f& position) override;
+		sf::Vector2f position;
 
-	std::vector<Button> buttonList;
+	};
+	VerticalList verticalList;
+	static const sf::Vector2f verticalListPositionOffset;
+
+	Button newMapButton;
+
+	sf::RectangleShape background;
 
 	// Consts
 	static const sf::Color backgroundFillColor;

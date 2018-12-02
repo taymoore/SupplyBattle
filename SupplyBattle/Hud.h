@@ -58,9 +58,11 @@ private:
 	VerticalList verticalList;
 	static const sf::Vector2f verticalListPositionOffset;
 
-	Button newMapButton;
+	NewMapButton newMapButton;
 
 	sf::RectangleShape background;
+
+	static sf::View view;
 
 	// Consts
 	static const sf::Color backgroundFillColor;

@@ -42,6 +42,6 @@ class NewMapButton :
 	public Button {
 public:
 	NewMapButton(Widget* parent);
-	void pressed() override;
+	void clicked() override;
 };
 

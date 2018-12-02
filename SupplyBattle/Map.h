@@ -21,14 +21,14 @@
 class Map :
 	public Widget {
 public:
-	Map(sf::RenderWindow& renderWindow, const uint32_t& xSize, const uint32_t& ySize);
+	Map(const sf::Vector2u & mapSize);
 	~Map();
+
+	void generateMap(const sf::Vector2u& size);
+
 	void draw(sf::RenderWindow& renderWindow);
 	const sf::Vector2u& getMapSize() const;
-	/*
-	Tile& getTile(const uint32_t& x, const uint32_t& y, const uint32_t& z);
-	*/
-    // Returns bool if event is handled
+
     bool handleEvent(sf::Event event) override;
 
 	enum Direction {
@@ -43,9 +43,6 @@ public:
 	Tile* getTile(const Tile & tile, const Map::Direction & direction);
 	Tile& getTile(const sf::Vector2f& pos);	// get tile from mouse position
 	std::vector<Tile*> getPath(Tile& start, Tile& finish);
-
-	void createRoad(Tile& tile);
-	void generateRoads();
 
 	const sf::Vector2f& getPosition() const override;
 	void setPosition(const sf::Vector2f& position) override;

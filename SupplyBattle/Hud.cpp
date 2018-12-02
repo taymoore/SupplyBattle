@@ -18,7 +18,7 @@ Hud::Hud(const sf::String& title, const sf::Vector2f& position, const sf::Vector
 	Widget(parent),
 	verticalList(*this),
 	background(size),
-	newMapButton("New Map", 20.f, this),
+	newMapButton(this),
 	titlebar(title, position, sf::Vector2f(size.x, 50.f), *this) {	// Height of titlebar
 	parent->addChild(this);
 	addChild(&verticalList);

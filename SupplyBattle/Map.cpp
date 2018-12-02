@@ -2,16 +2,43 @@
 
 extern sf::RenderWindow* renderWindow_;
 
+extern sf::View hudView;
 Map* map_;
 
 DebugView debugView;
 
-Map::Map(sf::RenderWindow& renderWindow, const uint32_t& xSize, const uint32_t& ySize) :
-	tileList(xSize * ySize),
+Map::Map(const sf::Vector2u& mapSize) :
+	view(sf::FloatRect(0.f, 0.f, static_cast<float>(renderWindow_->getSize().x), static_cast<float>(renderWindow_->getSize().y) * 1.4f)),
 	viewZoom(viewZoomInit),
 	panVerticalDirection(PanVerticalDirection::VerticalNone),
-	panHorizontalDirection(PanHorizontalDirection::HorizontalNone),
-	mapSize(xSize, ySize) {
+	panHorizontalDirection(PanHorizontalDirection::HorizontalNone) {
+	generateMap(mapSize);
+
+//	view.zoom(3.f);	// Doesn't work since pan rate is not correct
+    //renderWindow_->setView(view);
+
+	map_ = this;
+}
+
+const sf::Vector2f& Map::getPosition() const {
+	static sf::Vector2f origin(0.f, 0.f);
+	return origin;
+}
+
+void Map::setPosition(const sf::Vector2f & position) {
+}
+
+Map::~Map() {
+}
+
+void Map::generateMap(const sf::Vector2u & size) {
+	mapSize = size;
+
+	townList.clear();
+
+	tileList.clear();
+	tileList.resize(size.x * size.y);
+	tileList.shrink_to_fit();
 
 	// Generate Map
 	std::srand(static_cast<unsigned int>(std::time(nullptr)));
@@ -30,8 +57,8 @@ Map::Map(sf::RenderWindow& renderWindow, const uint32_t& xSize, const uint32_t& 
 		{Terrain::TerrainType::GRASSLAND,	Terrain::TerrainType::GRASSLAND,	Terrain::TerrainType::WOODED_HILLS,	Terrain::TerrainType::MOUNTAIN,		Terrain::TerrainType::MOUNTAIN},
 		{Terrain::TerrainType::HILLS,		Terrain::TerrainType::HILLS,		Terrain::TerrainType::WOODED_HILLS,	Terrain::TerrainType::MOUNTAIN,		Terrain::TerrainType::MOUNTAIN}
 	};
-	for(unsigned int y = 0; y < ySize; ++y) {
-		for(unsigned int x = 0; x < xSize; ++x) {
+	for(unsigned int y = 0; y < size.y; ++y) {
+		for(unsigned int x = 0; x < size.x; ++x) {
 			int heightVal = static_cast<int>(noiseHeight.GetNoise(static_cast<float>(x + 1576), static_cast<float>(y + 735)) * 10.f) + 2;
 			if(heightVal < 0) {
 				heightVal = 0;
@@ -45,7 +72,7 @@ Map::Map(sf::RenderWindow& renderWindow, const uint32_t& xSize, const uint32_t& 
 				vegVal = 4;
 			}
 			Terrain::TerrainType terrainType = terrainLegend[heightVal][vegVal];
-			tileList.at(x + y * xSize) = Tile(x, y, terrainType);
+			tileList.at(x + y * size.x) = Tile(x, y, terrainType);
 			//tileList.at(x + y * xSize).setString(std::to_string(heightVal));
 		}
 	}
@@ -82,31 +109,6 @@ Map::Map(sf::RenderWindow& renderWindow, const uint32_t& xSize, const uint32_t& 
 			}
 		}
 	}
-	// Generate Players
-	//const unsigned int playerCount = 2;
-	//enum Quadrant : unsigned int {
-	//	TOP_LEFT,
-	//	TOP_RIGHT,
-	//	BOTTOM_LEFT,
-	//	BOTTOM_RIGHT
-	//};
-	//bool quadrantOccupied[4] = { 0 };
-	//for (unsigned int playerCountTracer = 0; playerCountTracer < playerCount; ++playerCountTracer) {
-	//	Quadrant selectedQuadrant;
-	//	do {
-	//		selectedQuadrant = static_cast<Quadrant>(std::rand() % 4);
-	//	} while (!quadrantOccupied[selectedQuadrant]);
-	//	quadrantOccupied[selectedQuadrant] = true;
-	//}
-
-//	view.zoom(3.f);	// Doesn't work since pan rate is not correct
-    renderWindow.setView(view);
-
-	map_ = this;
-}
-
-void Map::generateRoads() {
-
 	// For all town pairs, sort by distance
 	std::multimap<unsigned int, std::pair<std::reference_wrapper<Tile>, std::reference_wrapper<Tile>>> townDistList;
 	for(std::vector<std::reference_wrapper<Tile>>::iterator townStartIter = townList.begin(); townStartIter != townList.end(); ++townStartIter) {
@@ -128,20 +130,11 @@ void Map::generateRoads() {
 			continue;
 		}
 		for (Tile* pathIter : path) {
-			createRoad(*pathIter);
+			pathIter->createRoad();
 		}
 	}
-}
 
-const sf::Vector2f& Map::getPosition() const {
-	static sf::Vector2f origin(0.f, 0.f);
-	return origin;
-}
-
-void Map::setPosition(const sf::Vector2f & position) {
-}
-
-Map::~Map() {
+	townList.shrink_to_fit();
 }
 
 void Map::draw(sf::RenderWindow& renderWindow) {
@@ -282,7 +275,10 @@ bool Map::handleEvent(sf::Event event) {
             panDelayCount = initPanDelay;
             eventHandled = true;
         }
-    }
+	} else if(event.type == sf::Event::Resized) {
+		hudView.reset(sf::FloatRect(0.f, 0.f, static_cast<float>(event.size.width), static_cast<float>(event.size.height)));
+		view.reset(sf::FloatRect(0.f, 0.f, static_cast<float>(event.size.width), static_cast<float>(event.size.height) * 1.4f));
+	}
 
     return eventHandled;
 }
@@ -544,10 +540,6 @@ std::vector<Tile*> Map::getPath(Tile & start, Tile & finish) {
 	} else {
 		return std::vector<Tile*>();
 	}
-}
-
-void Map::createRoad(Tile & tile) {
-	tile.createRoad();
 }
 
 Tile& Map::getTile(const int & x, const int & y, const int & z) {

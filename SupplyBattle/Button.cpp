@@ -1,5 +1,7 @@
 #include "Button.h"
+#include "Map.h"
 
+extern Map* map_;
 extern sf::RenderWindow* renderWindow_;
 extern Assets assets;
 extern Widget* focus_;
@@ -88,18 +90,28 @@ void Button::pressed() {
 	text.setFillColor(textFillColorPressed);
 	background.setFillColor(backgroundFillColorPressed);
 	background.setOutlineColor(backgroundOutlineColorPressed);
+	std::wostringstream os_;
+	os_ << "\n" << "down";
+	OutputDebugString(os_.str().c_str());
 }
 
 void Button::released() {
 	text.setFillColor(textFillColor);
 	background.setFillColor(backgroundFillColor);
 	background.setOutlineColor(backgroundOutlineColor);
+	std::wostringstream os_;
+	os_ << "\n" << "up";
+	OutputDebugString(os_.str().c_str());
 }
 
 NewMapButton::NewMapButton(Widget * parent) :
 	Button("New Map", 20.f, parent) {
 }
 
-void NewMapButton::pressed() {
+void NewMapButton::clicked() {
+	map_->generateMap(sf::Vector2u(10, 10));
+	std::wostringstream os_;
+	os_ << "\n" << "pressed";
+	OutputDebugString(os_.str().c_str());
 }
 

@@ -7,6 +7,7 @@
 Assets assets;
 sf::RenderWindow* renderWindow_;
 std::forward_list<Hud> hudList;
+sf::View hudView;
 Widget* focus_;
 
 extern DebugView debugView;
@@ -20,11 +21,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	renderWindow_ = &renderWindow;
 
 	// Create map
-	Map map(renderWindow, 5, 5);
+	Map map(sf::Vector2u(10, 10));
 	focus_ = &map;
-	map.generateRoads();
 
 	// Create Hud
+	hudView.reset(sf::FloatRect(0.f, 0.f, static_cast<float>(renderWindow_->getSize().x), static_cast<float>(renderWindow_->getSize().y)));
 	hudList.emplace_front("Debug", sf::Vector2f(500,50), sf::Vector2f(200, 500), &map);
 
 	while(renderWindow.isOpen()) {

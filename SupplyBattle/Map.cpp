@@ -143,6 +143,7 @@ void Map::generateMap(const sf::Vector2u & size, const unsigned int& playerCount
 	} else {
 		for(unsigned int i = 0; i < playerCount; ++i) {
 			playerList.emplace_back();
+			playerList.back().setColor(sf::Color(std::rand() % 256, std::rand() % 256, std::rand() % 256));
 			Tile* town;
 			do {
 				town = &townList.at(std::rand() % townList.size()).get();
@@ -180,6 +181,10 @@ void Map::draw(sf::RenderWindow& renderWindow) {
 		for(unsigned int x = 0; x < mapSize.x; x += 2) {
 			tileList.at(x + y * mapSize.x).drawRoad(renderWindow);
 		}
+	}
+	// Draw Players
+	for(Player& player : playerList) {
+		player.draw();
 	}
 }
 

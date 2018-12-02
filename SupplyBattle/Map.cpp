@@ -12,12 +12,12 @@ Map::Map(const sf::Vector2u& mapSize) :
 	viewZoom(viewZoomInit),
 	panVerticalDirection(PanVerticalDirection::VerticalNone),
 	panHorizontalDirection(PanHorizontalDirection::HorizontalNone) {
-	generateMap(mapSize);
-
 //	view.zoom(3.f);	// Doesn't work since pan rate is not correct
     //renderWindow_->setView(view);
 
 	map_ = this;
+
+	generateMap(mapSize, 2);
 }
 
 const sf::Vector2f& Map::getPosition() const {
@@ -31,7 +31,7 @@ void Map::setPosition(const sf::Vector2f & position) {
 Map::~Map() {
 }
 
-void Map::generateMap(const sf::Vector2u & size) {
+void Map::generateMap(const sf::Vector2u & size, const unsigned int& playerCount) {
 	mapSize = size;
 
 	townList.clear();
@@ -135,6 +135,22 @@ void Map::generateMap(const sf::Vector2u & size) {
 	}
 
 	townList.shrink_to_fit();
+
+	// Generate Players
+	unsigned int regenCountMax = 2;
+	if(townList.size() < playerCount && regenCountMax--) {
+		generateMap(size, playerCount);
+	} else {
+		for(unsigned int i = 0; i < playerCount; ++i) {
+			playerList.emplace_back();
+			Tile* town;
+			do {
+				town = &townList.at(std::rand() % townList.size()).get();
+			} while(town->getPlayer() != nullptr);
+			playerList.back().assignCity(*town);
+		}
+		playerList.shrink_to_fit();
+	}
 }
 
 void Map::draw(sf::RenderWindow& renderWindow) {

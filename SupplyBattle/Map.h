@@ -17,6 +17,7 @@
 #include "FastNoise.h"
 #include "DebugView.h"
 #include "Widget.h"
+#include "Player.h"
 
 class Map :
 	public Widget {
@@ -24,7 +25,7 @@ public:
 	Map(const sf::Vector2u & mapSize);
 	~Map();
 
-	void generateMap(const sf::Vector2u& size);
+	void generateMap(const sf::Vector2u & size, const unsigned int & playerCount);
 
 	void draw(sf::RenderWindow& renderWindow);
 	const sf::Vector2u& getMapSize() const;
@@ -40,12 +41,19 @@ public:
 		DOWN_LEFT
 	};
 
+	// Widget
+	const sf::Vector2f& getPosition() const override;
+	void setPosition(const sf::Vector2f& position) override;
+
+	// Tiles
 	Tile* getTile(const Tile & tile, const Map::Direction & direction);
 	Tile& getTile(const sf::Vector2f& pos);	// get tile from mouse position
 	std::vector<Tile*> getPath(Tile& start, Tile& finish);
 
-	const sf::Vector2f& getPosition() const override;
-	void setPosition(const sf::Vector2f& position) override;
+	// Towns
+
+	// Players
+	Player& getPlayer(const Tile& tile);
 
 private:
 	// Tiles
@@ -58,6 +66,9 @@ private:
 
 	// Towns
 	std::vector<std::reference_wrapper<Tile>> townList;
+
+	// Players
+	std::vector<Player> playerList;
 
 	// Map
 	sf::Vector2<unsigned int> mapSize;

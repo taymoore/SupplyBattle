@@ -1,5 +1,6 @@
 #include "Tile.h"
 #include "Map.h"
+#include "Player.h"
 
 extern Assets assets;
 extern Map* map_;
@@ -22,6 +23,7 @@ Tile::Tile(const sf::Vector3i& pos, const Terrain::TerrainType& terrainType) :
 	pixPos(static_cast<float>(pos2.x * 240), static_cast<float>(pos2.x % 2 ? pos2.y * 280 : pos2.y * 280 + 140)),
 	terrain(pixPos, terrainType),
 	road(false),
+	player(nullptr),
 	text("", assets.getFont(), 50) {
 	text.setPosition(pixPos + sf::Vector2f(120.0f, 240.0f));
 }
@@ -131,6 +133,18 @@ const sf::Vector2f Tile::getPixCentre() const {
 
 const sf::Vector2f Tile::getPixPos() const {
 	return pixPos;
+}
+
+void Tile::assignPlayer(Player & player) {
+	this->player = &player;
+}
+
+void Tile::clearPlayer() {
+	this->player = nullptr;
+}
+
+Player* Tile::getPlayer() {
+	return player;
 }
 
 void Tile::updateRoadGraphic() {

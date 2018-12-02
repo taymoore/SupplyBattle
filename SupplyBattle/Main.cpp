@@ -21,7 +21,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	renderWindow_ = &renderWindow;
 
 	// Create map
-	Map map(sf::Vector2u(10, 10));
+	Map map(sf::Vector2u(50, 50));
 	focus_ = &map;
 
 	// Create Hud

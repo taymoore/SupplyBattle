@@ -9,6 +9,8 @@
 #include "Terrain.h"
 #include "Assets.h"
 
+class Player;
+
 class Tile {
 public:
 	Tile();
@@ -45,6 +47,10 @@ public:
 	const sf::Vector2f getPixCentre() const;
 	const sf::Vector2f getPixPos() const;
 
+	void assignPlayer(Player& player);
+	void clearPlayer();
+	Player* getPlayer();
+
 private:
     // Position
     sf::Vector3i pos3;
@@ -58,6 +64,7 @@ private:
 	void updateRoadGraphic();
 	std::vector<std::array<sf::Vertex,2>> roadGraphic;
 
+	Player* player;
 
 	sf::Text text;
 };

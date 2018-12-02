@@ -7,7 +7,7 @@ extern Widget* focus_;
 
 std::vector<Hud*> hud_;
 
-const sf::Vector2f Hud::verticalListPositionOffset(5.f, 60.f);
+const sf::Vector2f Hud::verticalListPositionOffset(5.f, 45.f);
 
 const sf::Color Hud::backgroundFillColor(sf::Color(0xFA, 0xFA, 0xFA));
 const sf::Color Hud::backgroundOutlineColor(sf::Color(0x10, 0x10, 0x10));

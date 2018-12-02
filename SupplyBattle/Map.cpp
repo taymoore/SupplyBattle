@@ -326,7 +326,7 @@ Tile& Map::getTile(const sf::Vector2f& pos) {
 	*/
 
 	// Determine Column
-	/* A column is the right triangle(s) and square
+	/* A column is the right triangle and square
 		 |column|
 	      ____  
 		 |	  |\|

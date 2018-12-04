@@ -109,7 +109,7 @@ NewMapButton::NewMapButton(Widget * parent) :
 }
 
 void NewMapButton::clicked() {
-	map_->generateMap(sf::Vector2u(10, 10), 2);
+	map_->generateMap(map_->getMapSize(), 2);
 	std::wostringstream os_;
 	os_ << "\n" << "pressed";
 	OutputDebugString(os_.str().c_str());

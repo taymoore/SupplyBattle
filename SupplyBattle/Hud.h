@@ -20,7 +20,6 @@ public:
 	const sf::Vector2f& getPosition() const override;
 	void setPosition(const sf::Vector2f& position) override;
 
-
 	static const std::string to_string(const float& val, const unsigned int& precision);
 
 private:
@@ -61,8 +60,6 @@ private:
 	NewMapButton newMapButton;
 
 	sf::RectangleShape background;
-
-	static sf::View view;
 
 	// Consts
 	static const sf::Color backgroundFillColor;

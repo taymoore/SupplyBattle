@@ -157,9 +157,9 @@ void Map::generateMap(const sf::Vector2u & size, const unsigned int& playerCount
 void Map::draw(sf::RenderWindow& renderWindow) {
     renderWindow.setView(view);
 		//// Select tile
-		debugView.clear();
-		debugView.addCircle(getTile(renderWindow.mapPixelToCoords(sf::Mouse::getPosition(renderWindow))), sf::Color::Green);
-		debugView.addText(getTile(renderWindow.mapPixelToCoords(sf::Mouse::getPosition(renderWindow))), "hi");
+		//debugView.clear();
+		//debugView.addCircle(getTile(renderWindow.mapPixelToCoords(sf::Mouse::getPosition(renderWindow))), sf::Color::Green);
+		//debugView.addText(getTile(renderWindow.mapPixelToCoords(sf::Mouse::getPosition(renderWindow))), "hi");
 	// Draw Terrain
 	for(unsigned int y = 0; y < mapSize.y; ++y) {
 		// Draw top-row
@@ -206,19 +206,13 @@ bool Map::handleEvent(sf::Event event) {
 			if(!hasFocus()) {
 				takeFocus();
 			}
-            // If clicked on ship
-            //for(unsigned int factionIndex = 0; factionIndex < arena.getArenaFactionList()->size(); factionIndex++) {
-            //    ArenaFaction* arenaFaction = arena.getArenaFactionList()->at(factionIndex);
-            //    for(unsigned int shipIndex = 0; shipIndex < arenaFaction->getShipCount(); shipIndex++) {
-            //        sf::Vector2f shipSpritePosition = arenaFaction->shipAt(shipIndex)->spritePosition_sf;
-            //        sf::Vector2f shipSize = arenaFaction->shipAt(shipIndex)->getShipSize_sf();
-            //        sf::Vector2f mousePosition = sf::Vector2f(sf::Mouse::getPosition().x, sf::Mouse::getPosition().y);
-            //        // If area of the triangles 
-            //    }
-            //}
+			getTile(getTileFromMouse(), 5, [](const Tile& tile)->bool { return tile.getTerrain().getTerrainType() == Terrain::LIGHT_FOREST || tile.getTerrain().getTerrainType() == Terrain::THICK_FOREST; });
         }
         // Middle mouse button pressed
         else if(event.mouseButton.button == sf::Mouse::Button::Middle) {
+			if(!hasFocus()) {
+				takeFocus();
+			}
             isPanning = true;
             oldMousePoint = sf::Mouse::getPosition();
         }
@@ -403,6 +397,138 @@ Tile& Map::getTile(const sf::Vector2f& pos) {
 		return getTile(column, row);
 	}
 }
+
+Tile & Map::getTileFromMouse() {
+	renderWindow_->setView(view);
+	return getTile(renderWindow_->mapPixelToCoords(sf::Mouse::getPosition(*renderWindow_)));
+}
+
+Tile* Map::getTile(Tile& tile, const unsigned int & range, std::function<bool(const Tile&)> test) {
+	Tile* tileIter = &tile;
+	//unsigned int sideLength = 1;
+	// Check middle
+	if(test(*tileIter)) {
+		debugView.addCircle(*tileIter, sf::Color::Green);
+		//return tileIter;
+	}
+	else {
+		debugView.addCircle(*tileIter, sf::Color::Red);
+	}
+	debugView.render();
+	for(unsigned int sideLength = 1; sideLength <= range; ++sideLength) {
+		// Move out
+		tileIter = getTile(*tileIter, Map::Direction::UP_LEFT);
+		if(tileIter == nullptr) {
+			return nullptr;
+		}
+		if(test(*tileIter)) {
+			debugView.addCircle(*tileIter, sf::Color::Green);
+			//return tileIter;
+		}
+		else {
+			debugView.addCircle(*tileIter, sf::Color::Red);
+		}
+		debugView.render();
+		// Move up
+		for(unsigned int i = 0; i < sideLength - 1; ++i) {
+			tileIter = getTile(*tileIter, Map::Direction::UP);
+			if(tileIter == nullptr) {
+				return nullptr;
+			}
+			if(test(*tileIter)) {
+				debugView.addCircle(*tileIter, sf::Color::Green);
+				//return tileIter;
+			}
+			else {
+				debugView.addCircle(*tileIter, sf::Color::Red);
+			}
+			debugView.render();
+		}
+		// Move up-right
+		for(unsigned int i = 0; i < sideLength; ++i) {
+			tileIter = getTile(*tileIter, Map::Direction::UP_RIGHT);
+			if(tileIter == nullptr) {
+				return nullptr;
+			}
+			if(test(*tileIter)) {
+				debugView.addCircle(*tileIter, sf::Color::Green);
+				//return tileIter;
+			} else {
+				debugView.addCircle(*tileIter, sf::Color::Red);
+			}
+			debugView.render();
+		}
+		// Move down-right
+		for(unsigned int i = 0; i < sideLength; ++i) {
+			tileIter = getTile(*tileIter, Map::Direction::DOWN_RIGHT);
+			if(tileIter == nullptr) {
+				return nullptr;
+			}
+			if(test(*tileIter)) {
+				debugView.addCircle(*tileIter, sf::Color::Green);
+				//return tileIter;
+			} else {
+				debugView.addCircle(*tileIter, sf::Color::Red);
+			}
+			debugView.render();
+		}
+		// Move down
+		for(unsigned int i = 0; i < sideLength; ++i) {
+			tileIter = getTile(*tileIter, Map::Direction::DOWN);
+			if(tileIter == nullptr) {
+				return nullptr;
+			}
+			if(test(*tileIter)) {
+				debugView.addCircle(*tileIter, sf::Color::Green);
+				//return tileIter;
+			} else {
+				debugView.addCircle(*tileIter, sf::Color::Red);
+			}
+			debugView.render();
+		}
+		// Move down-left
+		for(unsigned int i = 0; i < sideLength; ++i) {
+			tileIter = getTile(*tileIter, Map::Direction::DOWN_LEFT);
+			if(tileIter == nullptr) {
+				return nullptr;
+			}
+			if(test(*tileIter)) {
+				debugView.addCircle(*tileIter, sf::Color::Green);
+				//return tileIter;
+			} else {
+				debugView.addCircle(*tileIter, sf::Color::Red);
+			}
+			debugView.render();
+		}
+		// Move up-left
+		for(unsigned int i = 0; i < sideLength; ++i) {
+			tileIter = getTile(*tileIter, Map::Direction::UP_LEFT);
+			if(tileIter == nullptr) {
+				return nullptr;
+			}
+			if(test(*tileIter)) {
+				debugView.addCircle(*tileIter, sf::Color::Green);
+				//return tileIter;
+			} else {
+				debugView.addCircle(*tileIter, sf::Color::Red);
+			}
+			debugView.render();
+		}
+	}
+	return nullptr;
+}
+	//case Map::Direction::UP_LEFT:
+	//	return getTilePtr(tile.getPos3().x - 1, tile.getPos3().y, tile.getPos3().z + 1);
+	//case Map::Direction::UP:
+	//	return getTilePtr(tile.getPos3().x - 1, tile.getPos3().y + 1, tile.getPos3().z);
+	//case Map::Direction::UP_RIGHT:
+	//	return getTilePtr(tile.getPos3().x, tile.getPos3().y + 1, tile.getPos3().z - 1);
+	//case Map::Direction::DOWN_RIGHT:
+	//	return getTilePtr(tile.getPos3().x + 1, tile.getPos3().y, tile.getPos3().z - 1);
+	//case Map::Direction::DOWN:
+	//	return getTilePtr(tile.getPos3().x + 1, tile.getPos3().y - 1, tile.getPos3().z);
+	//case Map::Direction::DOWN_LEFT:
+	//	return getTilePtr(tile.getPos3().x, tile.getPos3().y - 1, tile.getPos3().z + 1);
 
 //bool pathFound;
 

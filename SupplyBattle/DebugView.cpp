@@ -4,6 +4,7 @@
 extern sf::RenderWindow* renderWindow_;
 extern Map* map_;
 extern std::vector<Hud*> hud_;
+extern sf::View hudView;
 extern Assets assets;
 
 DebugView::DebugView() {
@@ -77,14 +78,18 @@ void DebugView::draw() {
 bool DebugView::render() {
 	bool loop = true;
 	bool ret = false;
+	sf::Text pauseText("Debug Pause...", assets.getFont(), 70);
+	pauseText.setPosition(sf::Vector2f(static_cast<float>(renderWindow_->getSize().x) * 0.3f, 10.f));
+	sf::View view(renderWindow_->getView());
 	while(loop) {
 		sf::Event event;
 		renderWindow_->clear();
 		map_->draw(*renderWindow_);
+		draw();
 		for(Hud* hud : hud_) {
 			hud->draw();
 		}
-		draw();
+		renderWindow_->draw(pauseText);
 		renderWindow_->display();
 		while(renderWindow_->pollEvent(event)) {
 			if(event.type == sf::Event::Closed) {

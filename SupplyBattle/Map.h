@@ -12,6 +12,7 @@
 #include <random>
 #include <ctime>
 #include <algorithm>
+#include <functional>
 #include "Assets.h"
 #include "Tile.h"
 #include "FastNoise.h"
@@ -47,22 +48,26 @@ public:
 
 	// Tiles
 	Tile* getTile(const Tile & tile, const Map::Direction & direction);
-	Tile& getTile(const sf::Vector2f& pos);	// get tile from mouse position
+	Tile& getTileFromMouse();
+	Tile* getTile(Tile& tile, const unsigned int& range, std::function<bool(const Tile&)> test);
 	std::vector<Tile*> getPath(Tile& start, Tile& finish);
 
 	// Towns
 
 	// Players
-	Player& getPlayer(const Tile& tile);
 
 private:
 	// Tiles
 	std::vector<Tile> tileList;
 	Tile& getTile(const int& x, const int& y, const int& z);
 	Tile& getTile(const int& a, const int& b);
+	Tile& getTile(const sf::Vector2f& pos);	// get tile from pixel position
 	Tile* getTilePtr(const int& x, const int& y, const int& z);
 	const Tile& getTile(const int & x, const int & y, const int & z) const;
 	std::array<Tile*, 6> getAdjacentTiles(const sf::Vector3i& pos);
+
+	// Improvements
+	std::vector<std::reference_wrapper<Tile>> improvementList;
 
 	// Towns
 	std::vector<std::reference_wrapper<Tile>> townList;

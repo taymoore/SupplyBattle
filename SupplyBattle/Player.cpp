@@ -27,6 +27,10 @@ void Player::setColor(const sf::Color & color) {
 	this->color = color;
 }
 
+const std::unordered_map<Tile*, Player::City>& Player::getCityList() const {
+	return cityList;
+}
+
 Player::City::City(Tile& tile, const sf::Color& color) :
 	tile(tile),
 	banner(5) {

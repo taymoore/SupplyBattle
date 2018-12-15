@@ -13,13 +13,15 @@ public:
 	void assignCity(Tile& tile);
 	void setColor(const sf::Color& color);
 
-private:
 	struct City {
 		City(Tile& tile, const sf::Color& color);
 		void draw();
 		Tile& tile;
 		sf::ConvexShape banner;
 	};
+	const std::unordered_map<Tile*, City>& getCityList() const;
+
+private:
 	std::unordered_map<Tile*, City> cityList;
 
 	sf::Color color;

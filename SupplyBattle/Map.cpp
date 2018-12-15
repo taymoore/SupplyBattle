@@ -152,6 +152,15 @@ void Map::generateMap(const sf::Vector2u & size, const unsigned int& playerCount
 		}
 		playerList.shrink_to_fit();
 	}
+
+	// Generate Resources
+	for(Player& player : playerList) {
+		Tile* tilePtr = getTile(player.getCityList().begin()->second.tile, 10, [](const Tile& tile)->bool { return tile.getTerrain().getTerrainType() == Terrain::THICK_FOREST; });
+		if(tilePtr != nullptr) {
+			debugView.addCircle(*tilePtr, sf::Color::Green);
+			debugView.render();
+		}
+	}
 }
 
 void Map::draw(sf::RenderWindow& renderWindow) {

@@ -20,6 +20,12 @@ Map::Map(const sf::Vector2u& mapSize) :
 	generateMap(mapSize, 2);
 }
 
+void Map::update() {
+	for(Player& player : playerList) {
+		player.update();
+	}
+}
+
 const sf::Vector2f& Map::getPosition() const {
 	static sf::Vector2f origin(0.f, 0.f);
 	return origin;
@@ -119,13 +125,7 @@ void Map::generateMap(const sf::Vector2u & size, const unsigned int& playerCount
 	}
 	// Generate Roads
 	for(auto& townPair : townDistList) {
-		//debugView.addCircle(townPair.second.first.get(), sf::Color(sf::Color::Green));
-		//debugView.addCircle(townPair.second.second.get(), sf::Color(sf::Color::Red));
-		//if(debugView.render()) {
-		//	return;
-		//}
-		std::vector<Tile*> path = getPath(townPair.second.first.get(), townPair.second.second.get());
-		//debugView.clear();
+		std::vector<Tile*> path = getPath(townPair.second.first.get(), townPair.second.second.get(), 300);
 		if(path.empty()) {
 			continue;
 		}
@@ -142,24 +142,23 @@ void Map::generateMap(const sf::Vector2u & size, const unsigned int& playerCount
 		generateMap(size, playerCount);
 	} else {
 		for(unsigned int i = 0; i < playerCount; ++i) {
-			playerList.emplace_back();
-			playerList.back().setColor(sf::Color(std::rand() % 256, std::rand() % 256, std::rand() % 256));
+			playerList.emplace_front();
+			playerList.front().setColor(sf::Color(std::rand() % 256, std::rand() % 256, std::rand() % 256));
 			Tile* town;
 			do {
 				town = &townList.at(std::rand() % townList.size()).get();
 			} while(town->getPlayer() != nullptr);
-			playerList.back().assignCity(*town);
+			playerList.front().assignCity(*town);
 		}
-		playerList.shrink_to_fit();
 	}
 
 	// Generate Resources
 	for(Player& player : playerList) {
 		Tile* tilePtr = getTile(player.getCityList().begin()->second.tile, 10, [](const Tile& tile)->bool { return tile.getTerrain().getTerrainType() == Terrain::THICK_FOREST; });
-		if(tilePtr != nullptr) {
-			debugView.addCircle(*tilePtr, sf::Color::Green);
-			debugView.render();
-		}
+		//if(tilePtr != nullptr) {
+		//	debugView.addCircle(*tilePtr, sf::Color::Green);
+		//	debugView.render();
+		//}
 	}
 }
 
@@ -327,6 +326,10 @@ const Tile& Map::getTile(const int & x, const int & y, const int & z) const {
 	return tileList.at(pos.y * mapSize.x + pos.x);
 }
 
+unsigned int Map::getDistance(const Tile & tile1, const Tile & tile2) {
+	return Tile::getDistance(tile1, tile2);
+}
+
 Tile* Map::getTile(Tile& tile, const Map::Direction & direction) {
 	switch(direction) {
 	case Map::Direction::NONE:
@@ -364,6 +367,8 @@ sf::Vector3i Map::getTile(const sf::Vector3i & pos, const Map::Direction & direc
 		return sf::Vector3i(pos.x + 1, pos.y - 1, pos.z);
 	case Map::Direction::DOWN_LEFT:
 		return sf::Vector3i(pos.x, pos.y - 1, pos.z + 1);
+	default:
+		return sf::Vector3i();
 	}
 }
 
@@ -509,7 +514,7 @@ std::vector<Tile*> Map::getTiles(Tile& tile, const unsigned int & range, std::fu
 	return tileList;
 }
 
-std::vector<Tile*> Map::getPath(Tile & start, Tile & finish) {
+std::vector<Tile*> Map::getPath(Tile & start, Tile & finish, int range) {
 	struct Node {
 		Node(Tile& tile, Node* back, Tile& finish) :
 			back(back),
@@ -565,7 +570,7 @@ std::vector<Tile*> Map::getPath(Tile & start, Tile & finish) {
 	std::list<Node> potentialPathList;
 	potentialPathList.push_back(Node(start, nullptr, finish));
 	// While we can still search
-	while(!potentialPathList.empty()) {
+	while(!potentialPathList.empty() && (range != -1 ? range-- : true)) {
 		// find node with least cost
 		potentialPathList.sort([](const Node& a, const Node& b) {return a.fCost < b.fCost; });
 		exploredPathList.push_front(potentialPathList.front());

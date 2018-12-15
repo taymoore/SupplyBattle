@@ -43,17 +43,21 @@ public:
 		DOWN_LEFT
 	};
 
+	// Update
+	void update();
+
 	// Widget
 	const sf::Vector2f& getPosition() const override;
 	void setPosition(const sf::Vector2f& position) override;
 
 	// Tiles
+	static unsigned int getDistance(const Tile& tile1, const Tile& tile2);
 	Tile* getTile(Tile & tile, const Map::Direction & direction);
 	sf::Vector3i getTile(const sf::Vector3i& pos, const Map::Direction & direction);
 	Tile& getTileFromMouse();
 	Tile* getTile(Tile & tile, const unsigned int & range, std::function<bool(const Tile&)> test);
 	std::vector<Tile*> getTiles(Tile & tile, const unsigned int & range, std::function<bool(const Tile&)> test);
-	std::vector<Tile*> getPath(Tile& start, Tile& finish);
+	std::vector<Tile*> getPath(Tile& start, Tile& finish, int range = -1);
 
 	// Towns
 
@@ -77,7 +81,7 @@ private:
 	std::vector<std::reference_wrapper<Tile>> townList;
 
 	// Players
-	std::vector<Player> playerList;
+	std::forward_list<Player> playerList;
 
 	// Map
 	sf::Vector2<unsigned int> mapSize;

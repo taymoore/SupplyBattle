@@ -24,6 +24,7 @@ Tile::Tile(const sf::Vector3i& pos, const Terrain::TerrainType& terrainType) :
 	terrain(pixPos, terrainType),
 	road(false),
 	player(nullptr),
+	unit(nullptr),
 	text("", assets.getFont(), 50) {
 	text.setPosition(pixPos + sf::Vector2f(120.0f, 240.0f));
 }
@@ -145,6 +146,14 @@ void Tile::clearPlayer() {
 
 Player* Tile::getPlayer() {
 	return player;
+}
+
+void Tile::setUnit(Unit* const unit) {
+	this->unit = unit;
+}
+
+Unit * Tile::getUnit() const {
+	return unit;
 }
 
 void Tile::updateRoadGraphic() {

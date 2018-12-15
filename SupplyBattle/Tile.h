@@ -10,6 +10,7 @@
 #include "Assets.h"
 
 class Player;
+class Unit;
 
 class Tile {
 public:
@@ -51,6 +52,9 @@ public:
 	void clearPlayer();
 	Player* getPlayer();
 
+	void setUnit(Unit* const unit);
+	Unit* getUnit() const;
+
 private:
     // Position
     sf::Vector3i pos3;
@@ -65,6 +69,8 @@ private:
 	std::vector<std::array<sf::Vertex,2>> roadGraphic;
 
 	Player* player;
+
+	Unit* unit;
 
 	sf::Text text;
 };

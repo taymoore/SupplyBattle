@@ -206,7 +206,11 @@ bool Map::handleEvent(sf::Event event) {
 			if(!hasFocus()) {
 				takeFocus();
 			}
-			getTile(getTileFromMouse(), 5, [](const Tile& tile)->bool { return tile.getTerrain().getTerrainType() == Terrain::LIGHT_FOREST || tile.getTerrain().getTerrainType() == Terrain::THICK_FOREST; });
+			Tile* tilePtr = getTile(getTileFromMouse(), 3, [](const Tile& tile)->bool { return tile.getTerrain().getTerrainType() == Terrain::LIGHT_FOREST || tile.getTerrain().getTerrainType() == Terrain::THICK_FOREST; });
+			if(tilePtr != nullptr) {
+				debugView.addCircle(*tilePtr, sf::Color::Green);
+				debugView.render();
+			}
         }
         // Middle mouse button pressed
         else if(event.mouseButton.button == sf::Mouse::Button::Middle) {
@@ -314,8 +318,10 @@ const Tile& Map::getTile(const int & x, const int & y, const int & z) const {
 	return tileList.at(pos.y * mapSize.x + pos.x);
 }
 
-Tile* Map::getTile(const Tile& tile, const Map::Direction & direction) {
+Tile* Map::getTile(Tile& tile, const Map::Direction & direction) {
 	switch(direction) {
+	case Map::Direction::NONE:
+		return &tile;
 	case Map::Direction::UP_LEFT:
 		return getTilePtr(tile.getPos3().x - 1, tile.getPos3().y, tile.getPos3().z + 1);
 	case Map::Direction::UP:
@@ -330,6 +336,25 @@ Tile* Map::getTile(const Tile& tile, const Map::Direction & direction) {
 		return getTilePtr(tile.getPos3().x, tile.getPos3().y - 1, tile.getPos3().z + 1);
 	default:
 		return nullptr;
+	}
+}
+
+sf::Vector3i Map::getTile(const sf::Vector3i & pos, const Map::Direction & direction) {
+	switch(direction) {
+	case Map::Direction::NONE:
+		return sf::Vector3i(pos);
+	case Map::Direction::UP_LEFT:
+		return sf::Vector3i(pos.x - 1, pos.y, pos.z + 1);
+	case Map::Direction::UP:
+		return sf::Vector3i(pos.x - 1, pos.y + 1, pos.z);
+	case Map::Direction::UP_RIGHT:
+		return sf::Vector3i(pos.x, pos.y + 1, pos.z - 1);
+	case Map::Direction::DOWN_RIGHT:
+		return sf::Vector3i(pos.x + 1, pos.y, pos.z - 1);
+	case Map::Direction::DOWN:
+		return sf::Vector3i(pos.x + 1, pos.y - 1, pos.z);
+	case Map::Direction::DOWN_LEFT:
+		return sf::Vector3i(pos.x, pos.y - 1, pos.z + 1);
 	}
 }
 
@@ -398,139 +423,82 @@ Tile& Map::getTile(const sf::Vector2f& pos) {
 	}
 }
 
+Tile * Map::getTilePtr(const sf::Vector3i & pos) {
+	return getTilePtr(pos.x, pos.y, pos.z);
+}
+
 Tile & Map::getTileFromMouse() {
 	renderWindow_->setView(view);
 	return getTile(renderWindow_->mapPixelToCoords(sf::Mouse::getPosition(*renderWindow_)));
 }
 
 Tile* Map::getTile(Tile& tile, const unsigned int & range, std::function<bool(const Tile&)> test) {
-	Tile* tileIter = &tile;
-	//unsigned int sideLength = 1;
-	// Check middle
-	if(test(*tileIter)) {
-		debugView.addCircle(*tileIter, sf::Color::Green);
-		//return tileIter;
+	sf::Vector3i tilePos = tile.getPos3();
+	Tile* tilePtr;
+	const std::array<Map::Direction, 6> direction = {
+		Map::Direction::UP_LEFT,
+		Map::Direction::UP,
+		Map::Direction::UP_RIGHT,
+		Map::Direction::DOWN_RIGHT,
+		Map::Direction::DOWN,
+		Map::Direction::DOWN_LEFT
+	};
+	// check start tile
+	tilePtr = getTilePtr(tilePos);
+	if(tilePtr != nullptr ? test(*tilePtr) : false) {
+		return tilePtr;
 	}
-	else {
-		debugView.addCircle(*tileIter, sf::Color::Red);
-	}
-	debugView.render();
+	tilePos = getTile(tilePos, Map::Direction::DOWN);
+	// check surrounding tiles
 	for(unsigned int sideLength = 1; sideLength <= range; ++sideLength) {
-		// Move out
-		tileIter = getTile(*tileIter, Map::Direction::UP_LEFT);
-		if(tileIter == nullptr) {
-			return nullptr;
+		for(std::array<Map::Direction, 6>::const_iterator directionIter = direction.begin(); directionIter != direction.end(); ++directionIter) {
+			for(unsigned int sideCount = 0; sideCount < sideLength; ++sideCount) {
+				tilePos = getTile(tilePos, *directionIter);
+				tilePtr = getTilePtr(tilePos);
+				if(tilePtr != nullptr ? test(*tilePtr) : false) {
+					return tilePtr;
+				}
+			}
 		}
-		if(test(*tileIter)) {
-			debugView.addCircle(*tileIter, sf::Color::Green);
-			//return tileIter;
-		}
-		else {
-			debugView.addCircle(*tileIter, sf::Color::Red);
-		}
-		debugView.render();
-		// Move up
-		for(unsigned int i = 0; i < sideLength - 1; ++i) {
-			tileIter = getTile(*tileIter, Map::Direction::UP);
-			if(tileIter == nullptr) {
-				return nullptr;
-			}
-			if(test(*tileIter)) {
-				debugView.addCircle(*tileIter, sf::Color::Green);
-				//return tileIter;
-			}
-			else {
-				debugView.addCircle(*tileIter, sf::Color::Red);
-			}
-			debugView.render();
-		}
-		// Move up-right
-		for(unsigned int i = 0; i < sideLength; ++i) {
-			tileIter = getTile(*tileIter, Map::Direction::UP_RIGHT);
-			if(tileIter == nullptr) {
-				return nullptr;
-			}
-			if(test(*tileIter)) {
-				debugView.addCircle(*tileIter, sf::Color::Green);
-				//return tileIter;
-			} else {
-				debugView.addCircle(*tileIter, sf::Color::Red);
-			}
-			debugView.render();
-		}
-		// Move down-right
-		for(unsigned int i = 0; i < sideLength; ++i) {
-			tileIter = getTile(*tileIter, Map::Direction::DOWN_RIGHT);
-			if(tileIter == nullptr) {
-				return nullptr;
-			}
-			if(test(*tileIter)) {
-				debugView.addCircle(*tileIter, sf::Color::Green);
-				//return tileIter;
-			} else {
-				debugView.addCircle(*tileIter, sf::Color::Red);
-			}
-			debugView.render();
-		}
-		// Move down
-		for(unsigned int i = 0; i < sideLength; ++i) {
-			tileIter = getTile(*tileIter, Map::Direction::DOWN);
-			if(tileIter == nullptr) {
-				return nullptr;
-			}
-			if(test(*tileIter)) {
-				debugView.addCircle(*tileIter, sf::Color::Green);
-				//return tileIter;
-			} else {
-				debugView.addCircle(*tileIter, sf::Color::Red);
-			}
-			debugView.render();
-		}
-		// Move down-left
-		for(unsigned int i = 0; i < sideLength; ++i) {
-			tileIter = getTile(*tileIter, Map::Direction::DOWN_LEFT);
-			if(tileIter == nullptr) {
-				return nullptr;
-			}
-			if(test(*tileIter)) {
-				debugView.addCircle(*tileIter, sf::Color::Green);
-				//return tileIter;
-			} else {
-				debugView.addCircle(*tileIter, sf::Color::Red);
-			}
-			debugView.render();
-		}
-		// Move up-left
-		for(unsigned int i = 0; i < sideLength; ++i) {
-			tileIter = getTile(*tileIter, Map::Direction::UP_LEFT);
-			if(tileIter == nullptr) {
-				return nullptr;
-			}
-			if(test(*tileIter)) {
-				debugView.addCircle(*tileIter, sf::Color::Green);
-				//return tileIter;
-			} else {
-				debugView.addCircle(*tileIter, sf::Color::Red);
-			}
-			debugView.render();
-		}
+		tilePos = getTile(tilePos, Map::Direction::DOWN);
 	}
 	return nullptr;
 }
-	//case Map::Direction::UP_LEFT:
-	//	return getTilePtr(tile.getPos3().x - 1, tile.getPos3().y, tile.getPos3().z + 1);
-	//case Map::Direction::UP:
-	//	return getTilePtr(tile.getPos3().x - 1, tile.getPos3().y + 1, tile.getPos3().z);
-	//case Map::Direction::UP_RIGHT:
-	//	return getTilePtr(tile.getPos3().x, tile.getPos3().y + 1, tile.getPos3().z - 1);
-	//case Map::Direction::DOWN_RIGHT:
-	//	return getTilePtr(tile.getPos3().x + 1, tile.getPos3().y, tile.getPos3().z - 1);
-	//case Map::Direction::DOWN:
-	//	return getTilePtr(tile.getPos3().x + 1, tile.getPos3().y - 1, tile.getPos3().z);
-	//case Map::Direction::DOWN_LEFT:
-	//	return getTilePtr(tile.getPos3().x, tile.getPos3().y - 1, tile.getPos3().z + 1);
 
-//bool pathFound;
+std::vector<Tile*> Map::getTiles(Tile& tile, const unsigned int & range, std::function<bool(const Tile&)> test) {
+	sf::Vector3i tilePos = tile.getPos3();
+	Tile* tilePtr;
+	std::vector<Tile*> tileList;
+	const std::array<Map::Direction, 6> direction = {
+		Map::Direction::UP_LEFT,
+		Map::Direction::UP,
+		Map::Direction::UP_RIGHT,
+		Map::Direction::DOWN_RIGHT,
+		Map::Direction::DOWN,
+		Map::Direction::DOWN_LEFT
+	};
+	// check start tile
+	tilePtr = getTilePtr(tilePos);
+	if(tilePtr != nullptr ? test(*tilePtr) : false) {
+		tileList.push_back(tilePtr);
+	}
+	tilePos = getTile(tilePos, Map::Direction::DOWN);
+	// check surrounding tiles
+	for(unsigned int sideLength = 1; sideLength <= range; ++sideLength) {
+		for(std::array<Map::Direction, 6>::const_iterator directionIter = direction.begin(); directionIter != direction.end(); ++directionIter) {
+			for(unsigned int sideCount = 0; sideCount < sideLength; ++sideCount) {
+				tilePos = getTile(tilePos, *directionIter);
+				tilePtr = getTilePtr(tilePos);
+				if(tilePtr != nullptr ? test(*tilePtr) : false) {
+					debugView.addCircle(*tilePtr, sf::Color::Green);
+					tileList.push_back(tilePtr);
+				}
+			}
+		}
+		tilePos = getTile(tilePos, Map::Direction::DOWN);
+	}
+	return tileList;
+}
 
 std::vector<Tile*> Map::getPath(Tile & start, Tile & finish) {
 	struct Node {

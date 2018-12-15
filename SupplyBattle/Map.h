@@ -33,7 +33,8 @@ public:
 
     bool handleEvent(sf::Event event) override;
 
-	enum Direction {
+	enum Direction : unsigned int {
+		NONE = 0,
 		UP_LEFT,
 		UP,
 		UP_RIGHT,
@@ -47,9 +48,11 @@ public:
 	void setPosition(const sf::Vector2f& position) override;
 
 	// Tiles
-	Tile* getTile(const Tile & tile, const Map::Direction & direction);
+	Tile* getTile(Tile & tile, const Map::Direction & direction);
+	sf::Vector3i getTile(const sf::Vector3i& pos, const Map::Direction & direction);
 	Tile& getTileFromMouse();
-	Tile* getTile(Tile& tile, const unsigned int& range, std::function<bool(const Tile&)> test);
+	Tile* getTile(Tile & tile, const unsigned int & range, std::function<bool(const Tile&)> test);
+	std::vector<Tile*> getTiles(Tile & tile, const unsigned int & range, std::function<bool(const Tile&)> test);
 	std::vector<Tile*> getPath(Tile& start, Tile& finish);
 
 	// Towns
@@ -62,6 +65,7 @@ private:
 	Tile& getTile(const int& x, const int& y, const int& z);
 	Tile& getTile(const int& a, const int& b);
 	Tile& getTile(const sf::Vector2f& pos);	// get tile from pixel position
+	Tile* getTilePtr(const sf::Vector3i& pos);
 	Tile* getTilePtr(const int& x, const int& y, const int& z);
 	const Tile& getTile(const int & x, const int & y, const int & z) const;
 	std::array<Tile*, 6> getAdjacentTiles(const sf::Vector3i& pos);

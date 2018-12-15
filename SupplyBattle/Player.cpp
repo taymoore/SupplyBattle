@@ -3,7 +3,8 @@
 extern sf::RenderWindow* renderWindow_;
 extern Assets assets;
 
-Player::Player() {
+Player::Player() :
+	strategy(*this) {
 }
 
 Player::~Player() {
@@ -43,6 +44,11 @@ const std::unordered_map<Tile*, Player::City>& Player::getCityList() const {
 	return cityList;
 }
 
+void Player::createUnit(Tile& tile) {
+	unitList.emplace_front(tile);
+	++strategy.armySize[this];
+}
+
 Player::City::City(Player * const player, Tile & tile, const sf::Color & color) :
 	player(player),
 	tile(tile),
@@ -60,7 +66,7 @@ void Player::City::update() {
 
 	// Build Units
 	if(resources.wood >= 10) {
-		player->unitList.emplace_front(tile);
+		player->createUnit(tile);
 		resources.wood -= 10;
 	}
 }
@@ -97,4 +103,13 @@ void Player::City::Banner::draw() {
 
 void Player::City::Banner::setResources(const Resources & resources) {
 	wood.setString(std::to_string(static_cast<unsigned int>(resources.wood)));
+}
+
+Player::Strategy::Strategy(Player & player) :
+	player(player),
+	focus(SCOUT) {
+}
+
+
+void Player::Strategy::update() {
 }

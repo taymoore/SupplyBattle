@@ -49,7 +49,26 @@ private:
 	std::unordered_map<Tile*, City> cityList;
 
 	sf::Color color;
+
+	void createUnit(Tile& tile);
 	std::forward_list<Unit> unitList;
 
+
+	struct Strategy {
+		Strategy(Player& player);
+		void update();
+
+		enum Focus {
+			DEFEND,
+			SCOUT,
+			ATTACK
+		};
+		Focus focus;
+
+		Player& player;
+
+		std::map<Player*, unsigned int> armySize;
+	};
+	Strategy strategy;
 };
 

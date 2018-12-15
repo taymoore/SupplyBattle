@@ -8,7 +8,7 @@ Map* map_;
 DebugView debugView;
 
 Map::Map(const sf::Vector2u& mapSize) :
-	view(sf::FloatRect(0.f, 0.f, static_cast<float>(renderWindow_->getSize().x), static_cast<float>(renderWindow_->getSize().y) * 1.4f)),
+	view(sf::FloatRect(0.f, 0.f, static_cast<float>(renderWindow_->getSize().x), static_cast<float>(renderWindow_->getSize().y) * 1.2f)),
 	viewZoom(viewZoomInit),
 	panVerticalDirection(PanVerticalDirection::VerticalNone),
 	panHorizontalDirection(PanHorizontalDirection::HorizontalNone) {

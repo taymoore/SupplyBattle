@@ -8,7 +8,7 @@ Unit::Unit(Tile& tile) :
     sprite(assets.getUnitTileset()),
 	tile(&tile) {
 	tile.setUnit(this);
-    //sprite.setTextureRect(sf::IntRect(32, 50, 32, 48));
+    sprite.setTextureRect(sf::IntRect(0, 0, 32, 48));
 	sprite.setPosition(tile.getPixPos());
 	sprite.setScale(10, 10);
 }

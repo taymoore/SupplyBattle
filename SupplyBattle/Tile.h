@@ -55,6 +55,8 @@ public:
 	void setUnit(Unit* const unit);
 	Unit* getUnit() const;
 
+	void clearFogOfWar();
+
 private:
     // Position
     sf::Vector3i pos3;
@@ -73,4 +75,6 @@ private:
 	Unit* unit;
 
 	sf::Text text;
+
+	bool fogOfWar;
 };

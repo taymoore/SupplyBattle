@@ -4,6 +4,7 @@
 
 extern Assets assets;
 extern Map* map_;
+extern sf::RenderWindow* renderWindow_;
 
 Tile::Tile() :
 	road(false) {
@@ -46,6 +47,12 @@ bool Tile::operator<(const Tile & other) const {
 }
 
 void Tile::drawTerrain(sf::RenderWindow& renderWindow) {
+	if(fogOfWar) {
+		terrain.setSpriteColor(sf::Color(0xCF, 0xCF, 0xCF, 0xCF));
+	} else {
+		terrain.setSpriteColor(sf::Color::White);
+	}
+	fogOfWar = true;
 	terrain.draw(renderWindow);
 	renderWindow.draw(text);
 }
@@ -156,6 +163,10 @@ Unit * Tile::getUnit() const {
 	return unit;
 }
 
+void Tile::clearFogOfWar() {
+	fogOfWar = false;
+}
+
 void Tile::updateRoadGraphic() {
 	roadGraphic.clear();
 	if(hasRoad()) {
@@ -169,3 +180,22 @@ void Tile::updateRoadGraphic() {
 		}
 	}
 }
+//
+//Tile::FogOfWar::FogOfWar(Tile& tile) :
+//	shape(6),
+//	active(true) {
+//	//shape.setPoint(0, sf::Vector2f(  80.f,    0.f));
+//	//shape.setPoint(1, sf::Vector2f( 240.f,    0.f));
+//	//shape.setPoint(2, sf::Vector2f( 320.f,  140.f));
+//	//shape.setPoint(3, sf::Vector2f( 240.f,  280.f));
+//	//shape.setPoint(4, sf::Vector2f(  80.f,  280.f));
+//	//shape.setPoint(5, sf::Vector2f(   0.f,  140.f));
+//	//shape.setPosition(tile.getPixPos() + sf::Vector2f(0.f, 100.f));
+//	//shape.setFillColor(sf::Color(0, 0, 0, 0xCF));
+//}
+
+//void Tile::FogOfWar::render() {
+//	if(active) {
+//		//renderWindow_->draw(shape);
+//	}
+//}

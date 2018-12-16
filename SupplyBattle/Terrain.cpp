@@ -76,6 +76,10 @@ void Terrain::setTerrainType(const TerrainType & terrainType) {
     sprite.setTextureRect(spriteRect);
 }
 
+void Terrain::setSpriteColor(const sf::Color & color) {
+	sprite.setColor(color);
+}
+
 const Terrain::TerrainType & Terrain::getTerrainType() const {
 	return terrainType;
 }

@@ -504,7 +504,7 @@ std::vector<Tile*> Map::getTiles(Tile& tile, const unsigned int & range, std::fu
 				tilePos = getTile(tilePos, *directionIter);
 				tilePtr = getTilePtr(tilePos);
 				if(tilePtr != nullptr ? test(*tilePtr) : false) {
-					debugView.addCircle(*tilePtr, sf::Color::Green);
+					//debugView.addCircle(*tilePtr, sf::Color::Green);
 					tileList.push_back(tilePtr);
 				}
 			}
@@ -668,6 +668,13 @@ std::vector<Tile*> Map::getPath(Tile & start, Tile & finish, int range) {
 		return path;
 	} else {
 		return std::vector<Tile*>();
+	}
+}
+
+void Map::clearFogOfWar(Tile & tile, const unsigned int & range) {
+	std::vector<Tile*> tiles = getTiles(tile, range, [](const Tile& tile)->bool {return true; });
+	for(Tile* tile : tiles) {
+		tile->clearFogOfWar();
 	}
 }
 

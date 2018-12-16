@@ -1,7 +1,9 @@
 #include "Player.h"
+#include "Map.h"
 
 extern sf::RenderWindow* renderWindow_;
 extern Assets assets;
+extern Map* map_;
 
 Player::Player() :
 	strategy(*this) {
@@ -69,6 +71,8 @@ void Player::City::update() {
 		player->createUnit(tile);
 		resources.wood -= 10;
 	}
+
+	map_->clearFogOfWar(tile, 3);
 }
 
 Player::City::Resources::Resources() :

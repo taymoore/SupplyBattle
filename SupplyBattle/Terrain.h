@@ -22,6 +22,7 @@ public:
 
 	void draw(sf::RenderWindow& renderWindow);
     void setTerrainType(const TerrainType& terrianType);
+	void setSpriteColor(const sf::Color& color);
 	const TerrainType& getTerrainType() const;
 	const unsigned int& getMovementCost() const;
 

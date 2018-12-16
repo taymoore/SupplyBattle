@@ -62,6 +62,7 @@ public:
 	// Towns
 
 	// Players
+	void clearFogOfWar(Tile& tile, const unsigned int& range);
 
 private:
 	// Tiles

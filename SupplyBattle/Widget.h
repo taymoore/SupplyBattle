@@ -20,6 +20,9 @@ public:
 
 	virtual const sf::Vector2f& getPosition() const = 0;
 	virtual void setPosition(const sf::Vector2f& position) = 0;
+	virtual const sf::Vector2f getSize() const {
+		throw std::exception("getSize() not implemented");
+	};
 
 protected:
 	Widget* parent;

@@ -8,6 +8,7 @@ Map* map_;
 DebugView debugView;
 
 Map::Map(const sf::Vector2u& mapSize) :
+	playerView(nullptr),
 	view(sf::FloatRect(0.f, 0.f, static_cast<float>(renderWindow_->getSize().x), static_cast<float>(renderWindow_->getSize().y) * 1.2f)),
 	viewZoom(viewZoomInit),
 	panVerticalDirection(PanVerticalDirection::VerticalNone),
@@ -671,11 +672,23 @@ std::vector<Tile*> Map::getPath(Tile & start, Tile & finish, int range) {
 	}
 }
 
+std::forward_list<Player>& Map::getPlayerList() {
+	return playerList;
+}
+
 void Map::clearFogOfWar(Tile & tile, const unsigned int & range) {
 	std::vector<Tile*> tiles = getTiles(tile, range, [](const Tile& tile)->bool {return true; });
 	for(Tile* tile : tiles) {
 		tile->clearFogOfWar();
 	}
+}
+
+const Player * const Map::getPlayerView() const {
+	return playerView;
+}
+
+void Map::setPlayerView(Player* const player) {
+	playerView = player;
 }
 
 Tile& Map::getTile(const int & x, const int & y, const int & z) {

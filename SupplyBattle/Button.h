@@ -15,6 +15,7 @@ public:
 
 	const sf::Vector2f& getPosition() const override;
 	void setPosition(const sf::Vector2f& position) override;
+	const sf::Vector2f getSize() const override;
 
 protected:
 	virtual void clicked() {};						// Mouse is pressed & released while mouse is within button

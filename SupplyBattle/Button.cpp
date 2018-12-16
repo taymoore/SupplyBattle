@@ -86,6 +86,10 @@ void Button::setPosition(const sf::Vector2f & position) {
 	background.setPosition(position);
 }
 
+const sf::Vector2f Button::getSize() const {
+	return background.getSize();
+}
+
 void Button::pressed() {
 	text.setFillColor(textFillColorPressed);
 	background.setFillColor(backgroundFillColorPressed);

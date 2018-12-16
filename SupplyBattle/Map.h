@@ -62,7 +62,10 @@ public:
 	// Towns
 
 	// Players
+	std::forward_list<Player>& getPlayerList();
 	void clearFogOfWar(Tile& tile, const unsigned int& range);
+	const Player* const getPlayerView() const;
+	void setPlayerView(Player* const player);
 
 private:
 	// Tiles
@@ -83,6 +86,7 @@ private:
 
 	// Players
 	std::forward_list<Player> playerList;
+	Player* playerView;		// Which player's perspective is active
 
 	// Map
 	sf::Vector2<unsigned int> mapSize;

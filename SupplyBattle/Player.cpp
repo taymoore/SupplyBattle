@@ -72,7 +72,9 @@ void Player::City::update() {
 		resources.wood -= 10;
 	}
 
-	map_->clearFogOfWar(tile, 3);
+	if(map_->getPlayerView() == nullptr || map_->getPlayerView() == player) {
+		map_->clearFogOfWar(tile, 3);
+	}
 }
 
 Player::City::Resources::Resources() :

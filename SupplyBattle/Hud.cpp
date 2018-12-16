@@ -18,11 +18,13 @@ Hud::Hud(const sf::String& title, const sf::Vector2f& position, const sf::Vector
 	Widget(parent),
 	verticalList(*this),
 	background(size),
-	newMapButton(this),
+	newMapButton(&verticalList),
+	globalViewCheckBox(&verticalList),
 	titlebar(title, position, sf::Vector2f(size.x, 50.f), *this) {	// Height of titlebar
 	parent->addChild(this);
 	addChild(&verticalList);
 	verticalList.addChild(&newMapButton);
+	verticalList.addChild(&globalViewCheckBox);
 	setPosition(position);
 	background.setFillColor(backgroundFillColor);
 	background.setOutlineThickness(3.f);
@@ -189,7 +191,9 @@ const sf::Vector2f & Hud::VerticalList::getPosition() const {
 
 void Hud::VerticalList::setPosition(const sf::Vector2f & position) {
 	this->position = position;
+	sf::Vector2f widgetPos(position);
 	for(Widget* widget : children) {
-		widget->setPosition(position);
+		widget->setPosition(widgetPos);
+		widgetPos.y += widget->getSize().y + 10.f;
 	}
 }

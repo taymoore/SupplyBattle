@@ -7,6 +7,7 @@
 #include "Assets.h"
 #include "Widget.h"
 #include "Button.h"
+#include "CheckBox.h"
 
 class Hud :
 	public Widget {
@@ -58,6 +59,8 @@ private:
 	static const sf::Vector2f verticalListPositionOffset;
 
 	NewMapButton newMapButton;
+	GlobalViewCheckbox globalViewCheckBox;
+	//std::vector<CheckBox> playerViewCheckboxList;
 
 	sf::RectangleShape background;
 

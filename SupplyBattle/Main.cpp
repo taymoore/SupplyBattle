@@ -26,7 +26,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	// Create Hud
 	hudView.reset(sf::FloatRect(0.f, 0.f, static_cast<float>(renderWindow_->getSize().x), static_cast<float>(renderWindow_->getSize().y)));
-	hudList.emplace_front("Debug", sf::Vector2f(10,10), sf::Vector2f(200, 30), &map);
+	hudList.emplace_front("Debug", sf::Vector2f(10.f, 10.f), sf::Vector2f(200.f, 80.f), &map);
 
 	while(renderWindow.isOpen()) {
 		// Read
